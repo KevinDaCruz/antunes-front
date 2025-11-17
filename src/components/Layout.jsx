@@ -10,7 +10,7 @@ function Layout() {
     >
       <Header />
 
-      <main className="container my-4" style={{ flex: "1" }}>
+      <main style={{ flex: "1" }}>
         <Outlet />
       </main>
 
