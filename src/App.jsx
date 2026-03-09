@@ -7,6 +7,10 @@ import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Sell from "./pages/Sell";
+import Catalog from "./pages/Catalog";
+import Favorites from "./pages/Favorites";
+import Messages from "./pages/Messages";
+import Account from "./pages/Account";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/catalog",
+        element: <Catalog />,
       },
       {
         path: "/product/:id",
@@ -32,6 +40,18 @@ const router = createBrowserRouter([
       {
         path: "/sell",
         element: <Sell />,
+      },
+      {
+        path: "/favorites",
+        element: <Favorites />,
+      },
+      {
+        path: "/messages",
+        element: <Messages />,
+      },
+      {
+        path: "/account",
+        element: <Account />,
       },
     ],
   },

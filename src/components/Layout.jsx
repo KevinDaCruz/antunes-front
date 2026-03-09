@@ -5,12 +5,10 @@ import Footer from "./Footer";
 
 function Layout() {
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-    >
+    <div className="app-layout">
       <Header />
 
-      <main style={{ flex: "1" }}>
+      <main className="app-layout-main">
         <Outlet />
       </main>
 
