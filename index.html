@@ -1,10 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Antunes</title>
+    <meta
+      name="description"
+      content="Antunes, la marketplace pour acheter et revendre smartphones, PC, consoles et composants électroniques d'occasion ou reconditionnés en toute confiance."
+    />
+    <meta property="og:title" content="Antunes | Marketplace tech d'occasion" />
+    <meta
+      property="og:description"
+      content="Achète et revends smartphones, PC, consoles et composants électroniques d'occasion ou reconditionnés."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/images/logo.png" />
+    <!--
+      connect-src inclut http://localhost:4000 (l'API antunes-back en dev).
+      À remplacer par le vrai domaine de l'API une fois déployée en production.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' https://placehold.co data:; connect-src 'self' http://localhost:4000 https://api-adresse.data.gouv.fr https://www.google-analytics.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline';"
+    />
+    <title>Antunes | Marketplace tech d'occasion</title>
   </head>
   <body>
     <div id="root"></div>

@@ -1,16 +1,26 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 
 import Layout from "./components/Layout";
+import RequireAuth from "./components/RequireAuth";
+import PageLoader from "./components/PageLoader";
+import { AuthProvider } from "./context/AuthContext";
+import { ProductsProvider } from "./context/ProductsContext";
 
-import Home from "./pages/Home";
-import ProductDetails from "./pages/ProductDetails";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Sell from "./pages/Sell";
-import Catalog from "./pages/Catalog";
-import Favorites from "./pages/Favorites";
-import Messages from "./pages/Messages";
-import Account from "./pages/Account";
+const Home = lazy(() => import("./pages/Home"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Sell = lazy(() => import("./pages/Sell"));
+const Catalog = lazy(() => import("./pages/Catalog"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Account = lazy(() => import("./pages/Account"));
+
+function withSuspense(element) {
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
+}
 
 const router = createBrowserRouter([
   {
@@ -19,46 +29,59 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: withSuspense(<Home />),
       },
       {
         path: "/catalog",
-        element: <Catalog />,
+        element: withSuspense(<Catalog />),
       },
       {
         path: "/product/:id",
-        element: <ProductDetails />,
+        element: withSuspense(<ProductDetails />),
       },
       {
         path: "/login",
-        element: <Login />,
+        element: withSuspense(<Login />),
       },
       {
         path: "/signup",
-        element: <Signup />,
+        element: withSuspense(<Signup />),
       },
       {
-        path: "/sell",
-        element: <Sell />,
-      },
-      {
-        path: "/favorites",
-        element: <Favorites />,
-      },
-      {
-        path: "/messages",
-        element: <Messages />,
-      },
-      {
-        path: "/account",
-        element: <Account />,
+        element: <RequireAuth />,
+        children: [
+          {
+            path: "/sell",
+            element: withSuspense(<Sell />),
+          },
+          {
+            path: "/favorites",
+            element: withSuspense(<Favorites />),
+          },
+          {
+            path: "/messages",
+            element: withSuspense(<Messages />),
+          },
+          {
+            path: "/account",
+            element: withSuspense(<Account />),
+          },
+        ],
       },
     ],
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <HelmetProvider>
+      <AuthProvider>
+        <ProductsProvider>
+          <RouterProvider router={router} />
+        </ProductsProvider>
+      </AuthProvider>
+    </HelmetProvider>
+  );
 }
 
 export default App;

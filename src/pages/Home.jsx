@@ -1,12 +1,17 @@
-import { products } from "../data/mockProducts";
 import ProductCard from "../components/ProductCard";
 import { Link } from "react-router-dom";
 import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
+import { useProducts } from "../hooks/useProducts";
+import SeoHead from "../components/SeoHead";
+
+const LATEST_PRODUCTS_COUNT = 4;
 
 function Home() {
   const { elementRef, spotlightHandlers } = useCursorSpotlight({
     resetToCenterOnLeave: false,
   });
+  const { products } = useProducts();
+  const latestProducts = products.slice(0, LATEST_PRODUCTS_COUNT);
 
   const stats = [
     { value: "12k+", label: "Annonces tech" },
@@ -21,6 +26,15 @@ function Home() {
     "Reconditionné premium",
     "Audio pro",
     "Streaming",
+  ];
+
+  // Le marquee boucle en glissant une copie du groupe sur l'autre (0% -> -50%).
+  // Chaque groupe doit donc rester plus large que le conteneur (jusqu'à 1320px
+  // en desktop), sinon la boucle se voit. On répète la liste pour le garantir.
+  const marqueeCollections = [
+    ...featuredCollections,
+    ...featuredCollections,
+    ...featuredCollections,
   ];
 
   const steps = [
@@ -43,6 +57,11 @@ function Home() {
 
   return (
     <>
+      <SeoHead
+        title="Achète et revends de la tech d'occasion"
+        description="Antunes, la marketplace pour acheter et revendre smartphones, PC, consoles et composants électroniques d'occasion ou reconditionnés en toute confiance."
+      />
+
       <section
         ref={elementRef}
         {...spotlightHandlers}
@@ -106,9 +125,9 @@ function Home() {
                 className="collections-group"
                 aria-hidden={groupIndex === 1}
               >
-                {featuredCollections.map((collection) => (
+                {marqueeCollections.map((collection, itemIndex) => (
                   <span
-                    key={`${groupIndex}-${collection}`}
+                    key={`${groupIndex}-${itemIndex}-${collection}`}
                     className="collection-chip"
                   >
                     {collection}
@@ -142,8 +161,8 @@ function Home() {
         </div>
 
         <div className="row">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {latestProducts.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
 

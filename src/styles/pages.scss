@@ -6,6 +6,23 @@
   --accent-emerald: #28d9a2;
 }
 
+.skip-to-content-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 2000;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--bs-primary);
+  color: #fff;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-to-content-link:focus {
+  top: 1rem;
+}
+
 .header-search-input {
   min-width: 300px;
   border-radius: 999px;
@@ -52,6 +69,12 @@
 :root[data-theme="dark"] .text-secondary,
 :root[data-theme="dark"] .card-text {
   color: rgba(213, 224, 255, 0.72) !important;
+}
+
+:root[data-theme="dark"] .alert-danger {
+  background-color: rgba(255, 90, 110, 0.14) !important;
+  color: #ff9caa !important;
+  border-color: rgba(255, 90, 110, 0.32) !important;
 }
 
 :root[data-theme="dark"] .bg-light {
@@ -351,6 +374,49 @@
   flex: 1;
   padding-top: 122px;
   animation: fade-in-up 0.45s ease;
+}
+
+.page-loader {
+  min-height: 60vh;
+}
+
+.address-autocomplete {
+  position: relative;
+}
+
+.address-suggestions-list {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem;
+  list-style: none;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.18);
+  background-color: var(--bs-body-bg);
+  box-shadow: var(--bs-box-shadow-sm);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.address-suggestion-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  background: none;
+  border-radius: 0.4rem;
+  font: inherit;
+  color: var(--bs-body-color);
+  cursor: pointer;
+}
+
+.address-suggestion-btn:hover,
+.address-suggestion-btn:focus-visible {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
 }
 
 .product-card-image {
@@ -662,7 +728,7 @@
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee-scroll 22s linear infinite;
+  animation: marquee-scroll 65s linear infinite;
 }
 
 .collections-group {
@@ -1338,6 +1404,29 @@
   color: var(--bs-body-color);
   border: 1px solid rgba(var(--bs-primary-rgb), 0.18);
   background-color: rgba(var(--bs-body-bg-rgb), 0.9);
+}
+
+.catalog-tag-btn {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.catalog-tag-btn.is-active {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #fff;
+}
+
+.catalog-empty-state {
+  border-radius: 1rem;
+  padding: 1.2rem;
+  border: 1px dashed rgba(var(--bs-primary-rgb), 0.28);
+  background-color: rgba(var(--bs-body-bg-rgb), 0.76);
 }
 
 .catalog-filters-premium {
@@ -2131,7 +2220,7 @@
   }
 
   .collections-track {
-    animation-duration: 18s;
+    animation-duration: 55s;
   }
   .hero-showcase-card-float {
     position: static;

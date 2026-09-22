@@ -1,10 +1,20 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
+import { useAuth } from "../hooks/useAuth";
+import SeoHead from "../components/SeoHead";
 
 function Login() {
   const { elementRef, spotlightHandlers } = useCursorSpotlight({
     resetToCenterOnLeave: false,
   });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const authStats = [
     { value: "12k+", label: "Membres actifs" },
@@ -12,8 +22,27 @@ function Login() {
     { value: "24/7", label: "Support" },
   ];
 
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const result = await login({ email, password });
+
+    if (!result.success) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    const redirectTo = location.state?.from?.pathname ?? "/account";
+    navigate(redirectTo, { replace: true });
+  }
+
   return (
     <section className="auth-page">
+      <SeoHead
+        title="Connexion"
+        description="Connecte-toi à ton compte Antunes pour retrouver tes annonces, tes favoris et tes conversations."
+      />
+
       <div className="container auth-container">
         <div className="auth-shell">
           <div className="auth-shell-side">
@@ -42,7 +71,13 @@ function Login() {
           <div ref={elementRef} {...spotlightHandlers} className="auth-card">
             <h2 className="auth-form-title">Connexion</h2>
 
-            <form className="auth-form">
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {errorMessage ? (
+                <div className="alert alert-danger" role="alert">
+                  {errorMessage}
+                </div>
+              ) : null}
+
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
                   Adresse e-mail
@@ -52,6 +87,8 @@ function Login() {
                   className="form-control"
                   id="email"
                   placeholder="nom@exemple.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
               </div>
 
@@ -64,6 +101,8 @@ function Login() {
                   className="form-control"
                   id="password"
                   placeholder="Votre mot de passe"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
 

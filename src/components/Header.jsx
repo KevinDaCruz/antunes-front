@@ -1,14 +1,33 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HEADER_CATEGORIES,
   HEADER_PRIMARY_LINKS,
 } from "../constants/navigation";
 import { useThemePreference } from "../hooks/useThemePreference";
-import { useAuthStatus } from "../hooks/useAuthStatus";
+import { useAuth } from "../hooks/useAuth";
 
 function Header() {
   const { isDarkMode, toggleTheme } = useThemePreference();
-  const { isAuthenticated } = useAuthStatus();
+  const { isAuthenticated, logout } = useAuth();
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+
+    const trimmedValue = searchValue.trim();
+    navigate(
+      trimmedValue
+        ? `/catalog?search=${encodeURIComponent(trimmedValue)}`
+        : "/catalog",
+    );
+  }
+
+  function handleLogoutClick() {
+    logout();
+    navigate("/");
+  }
 
   return (
     <header className="site-header shadow-sm">
@@ -45,12 +64,18 @@ function Header() {
               ))}
             </ul>
 
-            <form className="d-flex mx-auto" role="search">
+            <form
+              className="d-flex mx-auto"
+              role="search"
+              onSubmit={handleSearchSubmit}
+            >
               <input
                 className="form-control me-2 header-search-input"
                 type="search"
                 placeholder="Rechercher un produit..."
                 aria-label="Search"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
               />
               <button
                 className="btn btn-outline-primary search-button fx-neon"
@@ -70,22 +95,34 @@ function Header() {
                 {isDarkMode ? "☀️" : "🌙"}
               </button>
               {isAuthenticated ? (
-                <Link
-                  to="/account"
-                  className="btn btn-outline-secondary me-2 fx-neon"
-                >
-                  Mon compte
-                </Link>
-              ) : null}
-              <Link
-                to="/login"
-                className="btn btn-outline-primary me-2 fx-neon"
-              >
-                Connexion
-              </Link>
-              <Link to="/signup" className="btn btn-primary fx-neon">
-                Inscription
-              </Link>
+                <>
+                  <Link
+                    to="/account"
+                    className="btn btn-outline-secondary me-2 fx-neon"
+                  >
+                    Mon compte
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary fx-neon"
+                    onClick={handleLogoutClick}
+                  >
+                    Déconnexion
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="btn btn-outline-primary me-2 fx-neon"
+                  >
+                    Connexion
+                  </Link>
+                  <Link to="/signup" className="btn btn-primary fx-neon">
+                    Inscription
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -97,7 +134,7 @@ function Header() {
             {HEADER_CATEGORIES.map((category) => (
               <Link
                 key={category}
-                to="/catalog"
+                to={`/catalog?category=${encodeURIComponent(category)}`}
                 className="categories-nav-link"
               >
                 {category}

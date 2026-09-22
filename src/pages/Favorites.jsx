@@ -1,11 +1,18 @@
 import ProductCard from "../components/ProductCard";
-import { products } from "../data/mockProducts";
+import { useProducts } from "../hooks/useProducts";
+import SeoHead from "../components/SeoHead";
 
 function Favorites() {
-  const favoriteProducts = products.slice(0, 2);
+  const { favoriteProducts } = useProducts();
 
   return (
     <div className="container favorites-page my-4">
+      <SeoHead
+        title="Mes favoris"
+        description="Retrouve les annonces tech que tu surveilles sur Antunes."
+        noIndex
+      />
+
       <section className="favorites-hero mb-4">
         <div>
           <p className="favorites-kicker mb-2">Espace personnel</p>
@@ -34,7 +41,7 @@ function Favorites() {
       ) : (
         <div className="row favorites-grid">
           {favoriteProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       )}

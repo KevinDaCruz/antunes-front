@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useProducts } from "../hooks/useProducts";
+import { useAuth } from "../hooks/useAuth";
 
 function ProductCard({ product }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useProducts();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const productIsFavorite = isFavorite(product._id);
   const [isBursting, setIsBursting] = useState(false);
   const burstTimeoutRef = useRef(null);
 
@@ -18,24 +23,25 @@ function ProductCard({ product }) {
     event.preventDefault();
     event.stopPropagation();
 
-    setIsFavorite((currentValue) => {
-      const nextValue = !currentValue;
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
 
-      if (nextValue) {
-        setIsBursting(true);
+    toggleFavorite(product._id);
 
-        if (burstTimeoutRef.current) {
-          window.clearTimeout(burstTimeoutRef.current);
-        }
+    if (!productIsFavorite) {
+      setIsBursting(true);
 
-        burstTimeoutRef.current = window.setTimeout(() => {
-          setIsBursting(false);
-          burstTimeoutRef.current = null;
-        }, 520);
+      if (burstTimeoutRef.current) {
+        window.clearTimeout(burstTimeoutRef.current);
       }
 
-      return nextValue;
-    });
+      burstTimeoutRef.current = window.setTimeout(() => {
+        setIsBursting(false);
+        burstTimeoutRef.current = null;
+      }, 520);
+    }
   }
 
   return (
@@ -43,20 +49,22 @@ function ProductCard({ product }) {
       <div className="card h-100 shadow-sm border-0 product-card">
         <button
           type="button"
-          className={`favorite-toggle-btn ${isFavorite ? "is-favorite" : ""} ${
-            isBursting ? "is-bursting" : ""
-          }`}
+          className={`favorite-toggle-btn ${
+            productIsFavorite ? "is-favorite" : ""
+          } ${isBursting ? "is-bursting" : ""}`}
           aria-label={
-            isFavorite ? "Retirer des favoris" : "Ajouter l'article aux favoris"
+            productIsFavorite
+              ? "Retirer des favoris"
+              : "Ajouter l'article aux favoris"
           }
-          aria-pressed={isFavorite}
+          aria-pressed={productIsFavorite}
           onClick={handleFavoriteClick}
         >
           <span aria-hidden="true">♥</span>
         </button>
 
         <Link
-          to={`/product/${product.id}`}
+          to={`/product/${product._id}`}
           className="text-decoration-none text-dark product-card-link"
         >
           <img
@@ -65,7 +73,7 @@ function ProductCard({ product }) {
             alt={product.name}
           />
           <div className="card-body product-card-body">
-            <h5 className="card-title fw-bold">{product.price}</h5>
+            <h5 className="card-title fw-bold">{product.price}€</h5>
             <p className="card-text text-muted mb-1">{product.brand}</p>
             <p className="card-text text-secondary">{product.condition}</p>
           </div>

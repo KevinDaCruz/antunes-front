@@ -1,16 +1,47 @@
-# React + Vite
+# Antunes — Front-end
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Front-end de Antunes, une marketplace type "Vinted" dédiée à la revente d'appareils, pièces et accessoires électroniques (smartphones, PC, consoles, composants...). Projet de fin d'année réalisé en stack **MERN**, ce dépôt contient uniquement la partie **front**, séparée du back (API Node/Express + MongoDB) qui vit dans un dépôt distinct.
 
-Currently, two official plugins are available:
+## Stack technique
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [React 19](https://react.dev/) + [React Router 7](https://reactrouter.com/) pour le routing
+- [Vite](https://vite.dev/) comme bundler et serveur de développement
+- [Sass (Dart Sass)](https://sass-lang.com/) + [Bootstrap 5](https://getbootstrap.com/) pour le style et la grille responsive
+- [ESLint 9](https://eslint.org/) (flat config) pour la qualité du code
 
-## React Compiler
+Le front n'est pas encore connecté au back : les données affichées proviennent de `src/data/mockProducts.js`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Structure du projet
 
-## Expanding the ESLint configuration
+```
+src/
+├── components/   # Composants réutilisables (Header, Footer, Layout, ProductCard)
+├── pages/        # Une page par route (Home, Catalog, ProductDetails, Login...)
+├── hooks/        # Hooks custom (thème sombre, statut d'authentification, effet curseur)
+├── constants/    # Constantes partagées (navigation)
+├── data/         # Données mockées en attendant l'API
+└── styles/       # Feuilles de style SCSS
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Installation
+
+```bash
+npm install
+```
+
+## Scripts disponibles
+
+| Commande          | Description                                      |
+| ----------------- | ------------------------------------------------- |
+| `npm run dev`      | Lance le serveur de développement avec hot-reload |
+| `npm run build`     | Build de production dans `dist/`                  |
+| `npm run preview`   | Prévisualise le build de production en local       |
+| `npm run lint`      | Vérifie le code avec ESLint                        |
+
+## Développement
+
+```bash
+npm run dev
+```
+
+Le site est alors disponible sur `http://localhost:5173`.

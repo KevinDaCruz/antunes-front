@@ -1,10 +1,28 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
+import { useAuth } from "../hooks/useAuth";
+import SeoHead from "../components/SeoHead";
+
+const INITIAL_FORM_STATE = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
 
 function Signup() {
   const { elementRef, spotlightHandlers } = useCursorSpotlight({
     resetToCenterOnLeave: false,
   });
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  const [formValues, setFormValues] = useState(INITIAL_FORM_STATE);
+  const [acceptsTerms, setAcceptsTerms] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const sellerPerks = [
     "Badge vendeur vérifié",
@@ -12,8 +30,37 @@ function Signup() {
     "Messagerie centralisée",
   ];
 
+  function handleFieldChange(field, value) {
+    setFormValues((currentValues) => ({ ...currentValues, [field]: value }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!acceptsTerms) {
+      setErrorMessage(
+        "Merci d'accepter les conditions d'utilisation pour continuer.",
+      );
+      return;
+    }
+
+    const result = await signup(formValues);
+
+    if (!result.success) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    navigate("/account", { replace: true });
+  }
+
   return (
     <section className="auth-page">
+      <SeoHead
+        title="Inscription"
+        description="Crée ton compte vendeur Antunes et publie tes premières annonces de tech d'occasion en quelques minutes."
+      />
+
       <div className="container auth-container">
         <div className="auth-shell">
           <div className="auth-shell-side">
@@ -41,7 +88,13 @@ function Signup() {
           <div ref={elementRef} {...spotlightHandlers} className="auth-card">
             <h2 className="auth-form-title">Inscription</h2>
 
-            <form className="auth-form">
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {errorMessage ? (
+                <div className="alert alert-danger" role="alert">
+                  {errorMessage}
+                </div>
+              ) : null}
+
               <div className="row g-2 auth-form-row mb-2">
                 <div className="col-12 col-md-6">
                   <label htmlFor="firstName" className="form-label">
@@ -52,6 +105,10 @@ function Signup() {
                     className="form-control"
                     id="firstName"
                     placeholder="Votre prénom"
+                    value={formValues.firstName}
+                    onChange={(event) =>
+                      handleFieldChange("firstName", event.target.value)
+                    }
                   />
                 </div>
 
@@ -64,6 +121,10 @@ function Signup() {
                     className="form-control"
                     id="lastName"
                     placeholder="Votre nom"
+                    value={formValues.lastName}
+                    onChange={(event) =>
+                      handleFieldChange("lastName", event.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -77,6 +138,10 @@ function Signup() {
                   className="form-control"
                   id="username"
                   placeholder="Votre pseudo"
+                  value={formValues.username}
+                  onChange={(event) =>
+                    handleFieldChange("username", event.target.value)
+                  }
                 />
               </div>
 
@@ -89,6 +154,10 @@ function Signup() {
                   className="form-control"
                   id="email"
                   placeholder="nom@exemple.com"
+                  value={formValues.email}
+                  onChange={(event) =>
+                    handleFieldChange("email", event.target.value)
+                  }
                 />
               </div>
 
@@ -101,6 +170,10 @@ function Signup() {
                   className="form-control"
                   id="password"
                   placeholder="Votre mot de passe"
+                  value={formValues.password}
+                  onChange={(event) =>
+                    handleFieldChange("password", event.target.value)
+                  }
                 />
                 <div className="auth-password-hint mt-2">
                   8 caractères minimum, avec lettres et chiffres.
@@ -116,6 +189,10 @@ function Signup() {
                   className="form-control"
                   id="confirmPassword"
                   placeholder="Confirmez votre mot de passe"
+                  value={formValues.confirmPassword}
+                  onChange={(event) =>
+                    handleFieldChange("confirmPassword", event.target.value)
+                  }
                 />
               </div>
 
@@ -124,6 +201,8 @@ function Signup() {
                   className="form-check-input"
                   type="checkbox"
                   id="terms"
+                  checked={acceptsTerms}
+                  onChange={(event) => setAcceptsTerms(event.target.checked)}
                 />
                 <label className="form-check-label" htmlFor="terms">
                   J&apos;accepte les conditions d&apos;utilisation et la

@@ -1,9 +1,99 @@
-import { Link } from "react-router-dom";
-import { products } from "../data/mockProducts";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useProducts } from "../hooks/useProducts";
+import SeoHead from "../components/SeoHead";
+import AddressAutocomplete from "../components/AddressAutocomplete";
 
 function Account() {
+  const { user, logout, updateProfile } = useAuth();
+  const { products, favoriteProducts } = useProducts();
+  const navigate = useNavigate();
+  const [addressError, setAddressError] = useState("");
+
+  const [profileForm, setProfileForm] = useState({
+    firstName: "",
+    lastName: "",
+    pseudo: "",
+    email: "",
+  });
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Garde le formulaire synchronisé avec le profil serveur (au chargement et
+  // après un enregistrement réussi) sans passer par un effet : on ajuste
+  // l'état pendant le rendu, en comparant à la dernière référence connue.
+  const [syncedUser, setSyncedUser] = useState(null);
+  if (user && user !== syncedUser) {
+    setSyncedUser(user);
+    setProfileForm({
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      pseudo: user.pseudo ?? "",
+      email: user.email ?? "",
+    });
+  }
+
+  const myListings = user
+    ? products.filter((product) => product.seller?._id === user.id)
+    : [];
+
+  function handleLogoutClick() {
+    logout();
+    navigate("/");
+  }
+
+  async function handleAddressSelect(address) {
+    const result = await updateProfile({ address });
+    setAddressError(result.success ? "" : result.error);
+  }
+
+  function handleProfileFieldChange(field, value) {
+    setProfileForm((currentValues) => ({ ...currentValues, [field]: value }));
+  }
+
+  async function handleProfileSubmit(event) {
+    event.preventDefault();
+
+    setProfileError("");
+    setProfileSuccess("");
+    setIsSavingProfile(true);
+
+    const result = await updateProfile(profileForm);
+
+    if (result.success) {
+      setProfileSuccess("Modifications enregistrées.");
+    } else {
+      setProfileError(result.error);
+    }
+
+    setIsSavingProfile(false);
+  }
+
+  if (!user) {
+    return (
+      <div className="container account-page my-4 text-center">
+        <SeoHead title="Mon compte" description="Espace compte Antunes." noIndex />
+        <h1 className="h2 mb-3">Mon compte</h1>
+        <p className="text-muted mb-4">
+          Connecte-toi pour accéder à ton espace vendeur.
+        </p>
+        <Link to="/login" className="btn btn-primary fx-neon">
+          Se connecter
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="container account-page my-4">
+      <SeoHead
+        title="Mon compte"
+        description="Pilote ton activité, tes annonces et tes performances sur Antunes."
+        noIndex
+      />
+
       <section className="account-hero mb-4">
         <div>
           <p className="account-kicker mb-2">Espace vendeur</p>
@@ -21,22 +111,16 @@ function Account() {
       </section>
 
       <div className="row g-3 mb-4">
-        <div className="col-12 col-md-4">
+        <div className="col-12 col-md-6">
           <article className="account-stat-card">
-            <p className="account-stat-value mb-1">{products.length}</p>
+            <p className="account-stat-value mb-1">{myListings.length}</p>
             <p className="mb-0 text-muted">Annonces actives</p>
           </article>
         </div>
-        <div className="col-12 col-md-4">
+        <div className="col-12 col-md-6">
           <article className="account-stat-card">
-            <p className="account-stat-value mb-1">92%</p>
-            <p className="mb-0 text-muted">Taux de réponse</p>
-          </article>
-        </div>
-        <div className="col-12 col-md-4">
-          <article className="account-stat-card">
-            <p className="account-stat-value mb-1">4.9</p>
-            <p className="mb-0 text-muted">Note vendeur</p>
+            <p className="account-stat-value mb-1">{favoriteProducts.length}</p>
+            <p className="mb-0 text-muted">Favoris</p>
           </article>
         </div>
       </div>
@@ -45,14 +129,116 @@ function Account() {
         <div className="col-12 col-lg-4">
           <div className="card border-0 shadow-sm h-100 account-profile-card">
             <div className="card-body">
-              <h2 className="h5">Profil</h2>
-              <p className="mb-2">
-                <strong>Pseudo :</strong> KevinTech
-              </p>
-              <p className="mb-2">
-                <strong>Email :</strong> kevin@example.com
-              </p>
-              <p className="mb-0 text-muted">Membre depuis mars 2026</p>
+              <h2 className="h5 mb-3">Profil</h2>
+
+              {profileError ? (
+                <div className="alert alert-danger py-2" role="alert">
+                  {profileError}
+                </div>
+              ) : null}
+              {profileSuccess ? (
+                <div className="alert alert-success py-2" role="status">
+                  {profileSuccess}
+                </div>
+              ) : null}
+
+              <form onSubmit={handleProfileSubmit}>
+                <div className="row g-2 mb-2">
+                  <div className="col-6">
+                    <label htmlFor="account-firstName" className="form-label">
+                      Prénom
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="account-firstName"
+                      value={profileForm.firstName}
+                      onChange={(event) =>
+                        handleProfileFieldChange("firstName", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="col-6">
+                    <label htmlFor="account-lastName" className="form-label">
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="account-lastName"
+                      value={profileForm.lastName}
+                      onChange={(event) =>
+                        handleProfileFieldChange("lastName", event.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-2">
+                  <label htmlFor="account-pseudo" className="form-label">
+                    Pseudo
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="account-pseudo"
+                    value={profileForm.pseudo}
+                    onChange={(event) =>
+                      handleProfileFieldChange("pseudo", event.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="account-email" className="form-label">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="account-email"
+                    value={profileForm.email}
+                    onChange={(event) =>
+                      handleProfileFieldChange("email", event.target.value)
+                    }
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-sm mb-3"
+                  disabled={isSavingProfile}
+                >
+                  {isSavingProfile ? "Enregistrement..." : "Enregistrer"}
+                </button>
+              </form>
+
+              <div className="mb-3">
+                <label htmlFor="account-address" className="form-label">
+                  <strong>Adresse de livraison</strong>
+                </label>
+                {user.address ? (
+                  <p className="text-muted mb-2">{user.address}</p>
+                ) : null}
+                {addressError ? (
+                  <div className="alert alert-danger py-2" role="alert">
+                    {addressError}
+                  </div>
+                ) : null}
+                <AddressAutocomplete
+                  id="account-address"
+                  initialValue={user.address ?? ""}
+                  onSelect={handleAddressSelect}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                onClick={handleLogoutClick}
+              >
+                Se déconnecter
+              </button>
             </div>
           </div>
         </div>
@@ -61,32 +247,39 @@ function Account() {
           <div className="card border-0 shadow-sm account-listings-card">
             <div className="card-body">
               <h2 className="h5 mb-3">Mes annonces</h2>
-              <div className="table-responsive">
-                <table className="table align-middle mb-0 account-table">
-                  <thead>
-                    <tr>
-                      <th>Produit</th>
-                      <th>État</th>
-                      <th>Prix</th>
-                      <th>Statut</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr key={product.id}>
-                        <td>{product.name}</td>
-                        <td>{product.condition}</td>
-                        <td>{product.price}</td>
-                        <td>
-                          <span className="badge text-bg-success account-status-badge">
-                            En ligne
-                          </span>
-                        </td>
+              {myListings.length === 0 ? (
+                <p className="text-muted mb-0">
+                  Tu n&apos;as encore publié aucune annonce.{" "}
+                  <Link to="/sell">Vends ton premier article</Link>.
+                </p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table align-middle mb-0 account-table">
+                    <thead>
+                      <tr>
+                        <th>Produit</th>
+                        <th>État</th>
+                        <th>Prix</th>
+                        <th>Statut</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {myListings.map((product) => (
+                        <tr key={product._id}>
+                          <td>{product.name}</td>
+                          <td>{product.condition}</td>
+                          <td>{product.price}€</td>
+                          <td>
+                            <span className="badge text-bg-success account-status-badge">
+                              En ligne
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
