@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
@@ -107,5 +107,88 @@ describe("ProductDetails", () => {
     );
 
     expect(await screen.findByText("Messagerie")).toBeInTheDocument();
+  });
+
+  it("redirects a logged-out visitor to /login when buying", async () => {
+    globalThis.fetch = createApiMock([listProductsRoute]);
+    const user = userEvent.setup();
+    renderProductDetails("product-1");
+
+    await user.click(
+      await screen.findByRole("button", { name: "Acheter maintenant" }),
+    );
+
+    expect(await screen.findByText("Connexion")).toBeInTheDocument();
+  });
+
+  describe("buying while logged in", () => {
+    const originalLocation = window.location;
+
+    beforeEach(() => {
+      delete window.location;
+      window.location = {
+        href: "",
+        assign(url) {
+          this.href = url;
+        },
+      };
+    });
+
+    afterEach(() => {
+      window.location = originalLocation;
+    });
+
+    it("creates a checkout session and redirects to Stripe", async () => {
+      seedAuthenticatedSession();
+      globalThis.fetch = createApiMock([
+        listProductsRoute,
+        meRoute,
+        {
+          method: "POST",
+          pattern: /^\/payments\/checkout-session$/,
+          handler: () => ({
+            status: 201,
+            json: { url: "https://checkout.stripe.com/pay/cs_test_123" },
+          }),
+        },
+      ]);
+      const user = userEvent.setup();
+      renderProductDetails("product-1");
+
+      await user.click(
+        await screen.findByRole("button", { name: "Acheter maintenant" }),
+      );
+
+      await screen.findByText("Redirection vers le paiement...");
+      expect(window.location.href).toBe(
+        "https://checkout.stripe.com/pay/cs_test_123",
+      );
+    });
+
+    it("shows an error when the checkout session cannot be created", async () => {
+      seedAuthenticatedSession();
+      globalThis.fetch = createApiMock([
+        listProductsRoute,
+        meRoute,
+        {
+          method: "POST",
+          pattern: /^\/payments\/checkout-session$/,
+          handler: () => ({
+            status: 400,
+            json: { error: { message: "Tu ne peux pas acheter ta propre annonce." } },
+          }),
+        },
+      ]);
+      const user = userEvent.setup();
+      renderProductDetails("product-1");
+
+      await user.click(
+        await screen.findByRole("button", { name: "Acheter maintenant" }),
+      );
+
+      expect(
+        await screen.findByText("Tu ne peux pas acheter ta propre annonce."),
+      ).toBeInTheDocument();
+    });
   });
 });

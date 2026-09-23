@@ -17,6 +17,8 @@ const Catalog = lazy(() => import("./pages/Catalog"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Account = lazy(() => import("./pages/Account"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCancelled = lazy(() => import("./pages/PaymentCancelled"));
 
 function withSuspense(element) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
           {
             path: "/account",
             element: withSuspense(<Account />),
+          },
+          {
+            path: "/payment-success",
+            element: withSuspense(<PaymentSuccess />),
+          },
+          {
+            path: "/payment-cancelled",
+            element: withSuspense(<PaymentCancelled />),
           },
         ],
       },

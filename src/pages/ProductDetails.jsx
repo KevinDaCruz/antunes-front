@@ -13,6 +13,8 @@ function ProductDetails() {
   const { isAuthenticated, token } = useAuth();
   const navigate = useNavigate();
   const [contactError, setContactError] = useState("");
+  const [buyError, setBuyError] = useState("");
+  const [isRedirectingToPayment, setIsRedirectingToPayment] = useState(false);
 
   const product = products.find((p) => p._id === id);
 
@@ -25,6 +27,32 @@ function ProductDetails() {
         </Link>
       </div>
     );
+  }
+
+  async function handleBuyNow() {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    setBuyError("");
+    setIsRedirectingToPayment(true);
+
+    try {
+      const data = await apiRequest("/payments/checkout-session", {
+        method: "POST",
+        body: { productId: product._id },
+        token,
+      });
+      window.location.assign(data.url);
+    } catch (error) {
+      setBuyError(
+        error instanceof ApiError
+          ? error.message
+          : "Impossible de démarrer le paiement pour le moment.",
+      );
+      setIsRedirectingToPayment(false);
+    }
   }
 
   async function handleContactSeller() {
@@ -113,6 +141,11 @@ function ProductDetails() {
               </li>
             </ul>
 
+            {buyError ? (
+              <div className="alert alert-danger" role="alert">
+                {buyError}
+              </div>
+            ) : null}
             {contactError ? (
               <div className="alert alert-danger" role="alert">
                 {contactError}
@@ -120,8 +153,15 @@ function ProductDetails() {
             ) : null}
 
             <div className="d-flex gap-2 flex-wrap">
-              <button type="button" className="btn btn-primary btn-lg fx-neon">
-                Acheter maintenant
+              <button
+                type="button"
+                className="btn btn-primary btn-lg fx-neon"
+                onClick={handleBuyNow}
+                disabled={isRedirectingToPayment}
+              >
+                {isRedirectingToPayment
+                  ? "Redirection vers le paiement..."
+                  : "Acheter maintenant"}
               </button>
               <button
                 type="button"
