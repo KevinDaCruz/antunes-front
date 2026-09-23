@@ -16,12 +16,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/images/logo.png" />
     <!--
-      connect-src inclut http://localhost:4000 (l'API antunes-back en dev).
-      À remplacer par le vrai domaine de l'API une fois déployée en production.
+      connect-src autorise à la fois l'API locale (localhost:4000) et l'API
+      de préprod (antunes-back.onrender.com), pour que le même build
+      fonctionne dans les deux environnements. À restreindre une fois passé
+      en vraie production avec un nom de domaine définitif.
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' https://placehold.co data:; connect-src 'self' http://localhost:4000 https://api-adresse.data.gouv.fr https://www.google-analytics.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline';"
+      content="default-src 'self'; img-src 'self' https://placehold.co data:; connect-src 'self' http://localhost:4000 https://antunes-back.onrender.com https://api-adresse.data.gouv.fr https://www.google-analytics.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline';"
     />
     <title>Antunes | Marketplace tech d'occasion</title>
   </head>
