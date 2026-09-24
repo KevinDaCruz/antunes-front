@@ -15,13 +15,13 @@ const listProductsRoute = {
   handler: () => ({ status: 200, json: { products: [] } }),
 };
 
-function renderLoginRouter() {
+function renderLoginRouter(initialEntry = "/login") {
   const router = createMemoryRouter(
     [
       { path: "/login", element: <Login /> },
       { path: "/account", element: <div>Espace compte</div> },
     ],
-    { initialEntries: ["/login"] },
+    { initialEntries: [initialEntry] },
   );
 
   return render(
@@ -90,5 +90,22 @@ describe("Login", () => {
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
     expect(await screen.findByText("Espace compte")).toBeInTheDocument();
+  });
+
+  it("shows a success message when redirected here with one (e.g. after a password reset)", () => {
+    globalThis.fetch = createApiMock([listProductsRoute]);
+    renderLoginRouter({
+      pathname: "/login",
+      state: {
+        message:
+          "Ton mot de passe a bien été réinitialisé. Tu peux te reconnecter.",
+      },
+    });
+
+    expect(
+      screen.getByText(
+        "Ton mot de passe a bien été réinitialisé. Tu peux te reconnecter.",
+      ),
+    ).toBeInTheDocument();
   });
 });

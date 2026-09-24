@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
+import PasswordInput from "../components/PasswordInput";
 
 function ResetPassword() {
   const { resetPassword } = useAuth();
@@ -28,7 +29,13 @@ function ResetPassword() {
     const result = await resetPassword({ token, password });
 
     if (result.success) {
-      navigate("/login", { replace: true });
+      navigate("/login", {
+        replace: true,
+        state: {
+          message:
+            "Ton mot de passe a bien été réinitialisé. Tu peux te reconnecter.",
+        },
+      });
     } else {
       setErrorMessage(result.error);
     }
@@ -73,9 +80,7 @@ function ResetPassword() {
               <label htmlFor="password" className="form-label">
                 Nouveau mot de passe
               </label>
-              <input
-                type="password"
-                className="form-control"
+              <PasswordInput
                 id="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -86,9 +91,7 @@ function ResetPassword() {
               <label htmlFor="confirmPassword" className="form-label">
                 Confirmer le mot de passe
               </label>
-              <input
-                type="password"
-                className="form-control"
+              <PasswordInput
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}

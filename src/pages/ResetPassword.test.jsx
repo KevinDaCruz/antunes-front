@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { createMemoryRouter, RouterProvider, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
@@ -14,11 +14,21 @@ const listProductsRoute = {
   handler: () => ({ status: 200, json: { products: [] } }),
 };
 
+function LoginStandIn() {
+  const location = useLocation();
+  return (
+    <div>
+      Connexion
+      {location.state?.message ? <p>{location.state.message}</p> : null}
+    </div>
+  );
+}
+
 function renderResetPassword(path) {
   const router = createMemoryRouter(
     [
       { path: "/reset-password", element: <ResetPassword /> },
-      { path: "/login", element: <div>Connexion</div> },
+      { path: "/login", element: <LoginStandIn /> },
     ],
     { initialEntries: [path] },
   );
@@ -94,6 +104,11 @@ describe("ResetPassword", () => {
     );
 
     expect(await screen.findByText("Connexion")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Ton mot de passe a bien été réinitialisé. Tu peux te reconnecter.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("shows the backend error for an expired or invalid token", async () => {

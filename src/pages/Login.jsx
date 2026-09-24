@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
+import PasswordInput from "../components/PasswordInput";
 
 function Login() {
   const { elementRef, spotlightHandlers } = useCursorSpotlight({
@@ -15,6 +16,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const successMessage = location.state?.message;
 
   const authStats = [
     { value: "12k+", label: "Membres actifs" },
@@ -72,6 +74,11 @@ function Login() {
             <h2 className="auth-form-title">Connexion</h2>
 
             <form className="auth-form" onSubmit={handleSubmit}>
+              {successMessage ? (
+                <div className="alert alert-success" role="status">
+                  {successMessage}
+                </div>
+              ) : null}
               {errorMessage ? (
                 <div className="alert alert-danger" role="alert">
                   {errorMessage}
@@ -96,9 +103,7 @@ function Login() {
                 <label htmlFor="password" className="form-label">
                   Mot de passe
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="password"
                   placeholder="Votre mot de passe"
                   value={password}

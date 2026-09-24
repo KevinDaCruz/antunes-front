@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
+import PasswordInput from "../components/PasswordInput";
 
 const INITIAL_FORM_STATE = {
   firstName: "",
@@ -165,9 +166,7 @@ function Signup() {
                 <label htmlFor="password" className="form-label">
                   Mot de passe
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="password"
                   placeholder="Votre mot de passe"
                   value={formValues.password}
@@ -184,9 +183,7 @@ function Signup() {
                 <label htmlFor="confirmPassword" className="form-label">
                   Confirmer le mot de passe
                 </label>
-                <input
-                  type="password"
-                  className="form-control"
+                <PasswordInput
                   id="confirmPassword"
                   placeholder="Confirmez votre mot de passe"
                   value={formValues.confirmPassword}

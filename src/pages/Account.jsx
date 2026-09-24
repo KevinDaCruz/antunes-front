@@ -5,6 +5,7 @@ import { useProducts } from "../hooks/useProducts";
 import { apiRequest } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import AddressAutocomplete from "../components/AddressAutocomplete";
+import PasswordInput from "../components/PasswordInput";
 
 const INITIAL_PASSWORD_FORM = {
   currentPassword: "",
@@ -315,9 +316,7 @@ function Account() {
                   <label htmlFor="current-password" className="form-label">
                     Mot de passe actuel
                   </label>
-                  <input
-                    type="password"
-                    className="form-control"
+                  <PasswordInput
                     id="current-password"
                     value={passwordForm.currentPassword}
                     onChange={(event) =>
@@ -333,9 +332,7 @@ function Account() {
                   <label htmlFor="new-password" className="form-label">
                     Nouveau mot de passe
                   </label>
-                  <input
-                    type="password"
-                    className="form-control"
+                  <PasswordInput
                     id="new-password"
                     value={passwordForm.newPassword}
                     onChange={(event) =>
@@ -348,9 +345,7 @@ function Account() {
                   <label htmlFor="confirm-new-password" className="form-label">
                     Confirmer le nouveau mot de passe
                   </label>
-                  <input
-                    type="password"
-                    className="form-control"
+                  <PasswordInput
                     id="confirm-new-password"
                     value={passwordForm.confirmNewPassword}
                     onChange={(event) =>
