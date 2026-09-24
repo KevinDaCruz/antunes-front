@@ -23,6 +23,12 @@ const favoritesRoute = {
   handler: () => ({ status: 200, json: { products: [] } }),
 };
 
+const ordersRoute = {
+  method: "GET",
+  pattern: /^\/payments\/orders$/,
+  handler: () => ({ status: 200, json: { orders: [] } }),
+};
+
 function seedAuthenticatedSession() {
   window.localStorage.setItem(
     "antunes-auth",
@@ -46,7 +52,7 @@ describe("Account", () => {
 
   it("shows the profile and an empty listings state for a new user", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute]);
+    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute, ordersRoute]);
 
     renderWithProviders(<Account />);
 
@@ -63,6 +69,7 @@ describe("Account", () => {
       listProductsRoute,
       meRoute,
       favoritesRoute,
+      ordersRoute,
       {
         method: "PATCH",
         pattern: /^\/users\/me$/,
@@ -87,7 +94,7 @@ describe("Account", () => {
 
   it("logs out when clicking Se déconnecter", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute]);
+    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute, ordersRoute]);
     const user = userEvent.setup();
     renderWithProviders(<Account />);
 
@@ -96,5 +103,122 @@ describe("Account", () => {
     );
 
     expect(window.localStorage.getItem("antunes-auth")).toBeNull();
+  });
+
+  it("shows an empty state for purchases when there are none", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      ordersRoute,
+    ]);
+
+    renderWithProviders(<Account />);
+
+    expect(
+      await screen.findByText(/n'as encore rien acheté/),
+    ).toBeInTheDocument();
+  });
+
+  it("lists real purchases with their status", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      {
+        method: "GET",
+        pattern: /^\/payments\/orders$/,
+        handler: () => ({
+          status: 200,
+          json: {
+            orders: [
+              {
+                _id: "order-1",
+                product: { name: "iPhone 15 Pro" },
+                seller: { pseudo: "DemoSeller" },
+                amountTotal: 950,
+                status: "paid",
+              },
+            ],
+          },
+        }),
+      },
+    ]);
+
+    renderWithProviders(<Account />);
+
+    expect(await screen.findByText("iPhone 15 Pro")).toBeInTheDocument();
+    expect(screen.getByText("Payée")).toBeInTheDocument();
+  });
+
+  it("changes the password through the form", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      ordersRoute,
+      {
+        method: "PATCH",
+        pattern: /^\/users\/me\/password$/,
+        handler: () => ({ status: 200, json: { success: true } }),
+      },
+    ]);
+    const user = userEvent.setup();
+    renderWithProviders(<Account />);
+
+    await user.type(
+      await screen.findByLabelText("Mot de passe actuel"),
+      "azerty123",
+    );
+    await user.type(
+      screen.getByLabelText("Nouveau mot de passe"),
+      "newpassword456",
+    );
+    await user.type(
+      screen.getByLabelText("Confirmer le nouveau mot de passe"),
+      "newpassword456",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Changer le mot de passe" }),
+    );
+
+    expect(
+      await screen.findByText("Mot de passe mis à jour."),
+    ).toBeInTheDocument();
+  });
+
+  it("rejects mismatched new passwords without calling the API", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      ordersRoute,
+    ]);
+    const user = userEvent.setup();
+    renderWithProviders(<Account />);
+
+    await user.type(
+      await screen.findByLabelText("Mot de passe actuel"),
+      "azerty123",
+    );
+    await user.type(
+      screen.getByLabelText("Nouveau mot de passe"),
+      "newpassword456",
+    );
+    await user.type(
+      screen.getByLabelText("Confirmer le nouveau mot de passe"),
+      "different",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Changer le mot de passe" }),
+    );
+
+    expect(
+      screen.getByText("Les nouveaux mots de passe ne correspondent pas."),
+    ).toBeInTheDocument();
   });
 });

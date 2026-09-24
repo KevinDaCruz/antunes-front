@@ -192,4 +192,83 @@ describe("AuthContext", () => {
     expect(result.current.user.address).toBe("1 rue de Paris");
     expect(result.current.user.email).toBe(DEMO_USER.email);
   });
+
+  it("changes the password through the API", async () => {
+    globalThis.fetch = createApiMock([
+      {
+        method: "POST",
+        pattern: /^\/auth\/login$/,
+        handler: () => ({
+          status: 200,
+          json: { user: DEMO_USER, token: FAKE_TOKEN },
+        }),
+      },
+      {
+        method: "PATCH",
+        pattern: /^\/users\/me\/password$/,
+        handler: () => ({ status: 200, json: { success: true } }),
+      },
+    ]);
+    const { result } = await renderAuth();
+
+    await act(async () => {
+      await result.current.login({
+        email: DEMO_USER.email,
+        password: "azerty123",
+      });
+    });
+
+    let response;
+    await act(async () => {
+      response = await result.current.changePassword({
+        currentPassword: "azerty123",
+        newPassword: "newpassword456",
+      });
+    });
+
+    expect(response.success).toBe(true);
+  });
+
+  it("requests a password reset email", async () => {
+    globalThis.fetch = createApiMock([
+      {
+        method: "POST",
+        pattern: /^\/auth\/forgot-password$/,
+        handler: () => ({
+          status: 200,
+          json: { message: "Si un compte existe..." },
+        }),
+      },
+    ]);
+    const { result } = await renderAuth();
+
+    let response;
+    await act(async () => {
+      response = await result.current.forgotPassword("kevin@example.com");
+    });
+
+    expect(response.success).toBe(true);
+    expect(response.message).toBe("Si un compte existe...");
+  });
+
+  it("resets the password with a token", async () => {
+    globalThis.fetch = createApiMock([
+      {
+        method: "POST",
+        pattern: /^\/auth\/reset-password$/,
+        handler: () => ({ status: 200, json: { success: true } }),
+      },
+    ]);
+    const { result } = await renderAuth();
+
+    let response;
+    await act(async () => {
+      response = await result.current.resetPassword({
+        token: "raw-token",
+        password: "newpassword456",
+      });
+    });
+
+    expect(response.success).toBe(true);
+  });
 });

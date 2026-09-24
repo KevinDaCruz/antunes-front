@@ -107,9 +107,9 @@ function Login() {
               </div>
 
               <div className="auth-form-meta mb-3">
-                <a href="#" className="auth-meta-link">
+                <Link to="/forgot-password" className="auth-meta-link">
                   Mot de passe oublié ?
-                </a>
+                </Link>
                 <span className="auth-meta-dot" aria-hidden="true">
                   •
                 </span>

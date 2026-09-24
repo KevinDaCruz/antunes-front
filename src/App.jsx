@@ -12,6 +12,8 @@ const Home = lazy(() => import("./pages/Home"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Sell = lazy(() => import("./pages/Sell"));
 const Catalog = lazy(() => import("./pages/Catalog"));
 const Favorites = lazy(() => import("./pages/Favorites"));
@@ -48,6 +50,14 @@ const router = createBrowserRouter([
       {
         path: "/signup",
         element: withSuspense(<Signup />),
+      },
+      {
+        path: "/forgot-password",
+        element: withSuspense(<ForgotPassword />),
+      },
+      {
+        path: "/reset-password",
+        element: withSuspense(<ResetPassword />),
       },
       {
         element: <RequireAuth />,

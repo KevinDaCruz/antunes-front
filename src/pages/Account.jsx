@@ -1,15 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useProducts } from "../hooks/useProducts";
+import { apiRequest } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import AddressAutocomplete from "../components/AddressAutocomplete";
 
+const INITIAL_PASSWORD_FORM = {
+  currentPassword: "",
+  newPassword: "",
+  confirmNewPassword: "",
+};
+
 function Account() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, token, logout, updateProfile, changePassword } = useAuth();
   const { products, favoriteProducts } = useProducts();
   const navigate = useNavigate();
   const [addressError, setAddressError] = useState("");
+
+  const [passwordForm, setPasswordForm] = useState(INITIAL_PASSWORD_FORM);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  const [orders, setOrders] = useState([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
 
   const [profileForm, setProfileForm] = useState({
     firstName: "",
@@ -38,6 +53,26 @@ function Account() {
   const myListings = user
     ? products.filter((product) => product.seller?._id === user.id)
     : [];
+
+  useEffect(() => {
+    async function loadOrders() {
+      if (!token) {
+        setIsLoadingOrders(false);
+        return;
+      }
+
+      try {
+        const data = await apiRequest("/payments/orders", { token });
+        setOrders(data.orders);
+      } catch {
+        setOrders([]);
+      } finally {
+        setIsLoadingOrders(false);
+      }
+    }
+
+    loadOrders();
+  }, [token]);
 
   function handleLogoutClick() {
     logout();
@@ -69,6 +104,34 @@ function Account() {
     }
 
     setIsSavingProfile(false);
+  }
+
+  function handlePasswordFieldChange(field, value) {
+    setPasswordForm((currentValues) => ({ ...currentValues, [field]: value }));
+  }
+
+  async function handlePasswordSubmit(event) {
+    event.preventDefault();
+
+    if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
+      setPasswordError("Les nouveaux mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setPasswordError("");
+    setPasswordSuccess("");
+    setIsSavingPassword(true);
+
+    const result = await changePassword(passwordForm);
+
+    if (result.success) {
+      setPasswordSuccess("Mot de passe mis à jour.");
+      setPasswordForm(INITIAL_PASSWORD_FORM);
+    } else {
+      setPasswordError(result.error);
+    }
+
+    setIsSavingPassword(false);
   }
 
   if (!user) {
@@ -232,6 +295,84 @@ function Account() {
                 />
               </div>
 
+              <hr className="my-3" />
+
+              <h2 className="h6 mb-3">Changer le mot de passe</h2>
+
+              {passwordError ? (
+                <div className="alert alert-danger py-2" role="alert">
+                  {passwordError}
+                </div>
+              ) : null}
+              {passwordSuccess ? (
+                <div className="alert alert-success py-2" role="status">
+                  {passwordSuccess}
+                </div>
+              ) : null}
+
+              <form onSubmit={handlePasswordSubmit}>
+                <div className="mb-2">
+                  <label htmlFor="current-password" className="form-label">
+                    Mot de passe actuel
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="current-password"
+                    value={passwordForm.currentPassword}
+                    onChange={(event) =>
+                      handlePasswordFieldChange(
+                        "currentPassword",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="mb-2">
+                  <label htmlFor="new-password" className="form-label">
+                    Nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="new-password"
+                    value={passwordForm.newPassword}
+                    onChange={(event) =>
+                      handlePasswordFieldChange("newPassword", event.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="confirm-new-password" className="form-label">
+                    Confirmer le nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    id="confirm-new-password"
+                    value={passwordForm.confirmNewPassword}
+                    onChange={(event) =>
+                      handlePasswordFieldChange(
+                        "confirmNewPassword",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary btn-sm mb-3"
+                  disabled={isSavingPassword}
+                >
+                  {isSavingPassword
+                    ? "Enregistrement..."
+                    : "Changer le mot de passe"}
+                </button>
+              </form>
+
               <button
                 type="button"
                 className="btn btn-outline-secondary btn-sm"
@@ -272,6 +413,63 @@ function Account() {
                           <td>
                             <span className="badge text-bg-success account-status-badge">
                               En ligne
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row g-4 mt-1">
+        <div className="col-12">
+          <div className="card border-0 shadow-sm account-listings-card">
+            <div className="card-body">
+              <h2 className="h5 mb-3">Mes achats</h2>
+              {isLoadingOrders ? (
+                <p className="text-muted mb-0">Chargement...</p>
+              ) : orders.length === 0 ? (
+                <p className="text-muted mb-0">
+                  Tu n&apos;as encore rien acheté.{" "}
+                  <Link to="/catalog">Explore le catalogue</Link>.
+                </p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table align-middle mb-0 account-table">
+                    <thead>
+                      <tr>
+                        <th>Produit</th>
+                        <th>Vendeur</th>
+                        <th>Prix</th>
+                        <th>Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => (
+                        <tr key={order._id}>
+                          <td>{order.product?.name}</td>
+                          <td>{order.seller?.pseudo}</td>
+                          <td>{order.amountTotal}€</td>
+                          <td>
+                            <span
+                              className={`badge account-status-badge text-bg-${
+                                order.status === "paid"
+                                  ? "success"
+                                  : order.status === "failed"
+                                    ? "danger"
+                                    : "secondary"
+                              }`}
+                            >
+                              {order.status === "paid"
+                                ? "Payée"
+                                : order.status === "failed"
+                                  ? "Échouée"
+                                  : "En attente"}
                             </span>
                           </td>
                         </tr>

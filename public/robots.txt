@@ -4,4 +4,4 @@ Disallow: /account
 Disallow: /favorites
 Disallow: /messages
 
-Sitemap: https://antunes.example.com/sitemap.xml
+Sitemap: https://antunes-front.vercel.app/sitemap.xml

@@ -11,10 +11,14 @@ import Catalog from "../pages/Catalog";
 import ProductDetails from "../pages/ProductDetails";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 import Sell from "../pages/Sell";
 import Favorites from "../pages/Favorites";
 import Messages from "../pages/Messages";
 import Account from "../pages/Account";
+import PaymentSuccess from "../pages/PaymentSuccess";
+import PaymentCancelled from "../pages/PaymentCancelled";
 
 const PAGES = [
   { name: "Home", element: <Home />, path: "/" },
@@ -26,10 +30,30 @@ const PAGES = [
   },
   { name: "Login", element: <Login />, path: "/login" },
   { name: "Signup", element: <Signup />, path: "/signup" },
+  {
+    name: "ForgotPassword",
+    element: <ForgotPassword />,
+    path: "/forgot-password",
+  },
+  {
+    name: "ResetPassword",
+    element: <ResetPassword />,
+    path: "/reset-password",
+  },
   { name: "Sell", element: <Sell />, path: "/sell" },
   { name: "Favorites", element: <Favorites />, path: "/favorites" },
   { name: "Messages", element: <Messages />, path: "/messages" },
   { name: "Account", element: <Account />, path: "/account" },
+  {
+    name: "PaymentSuccess",
+    element: <PaymentSuccess />,
+    path: "/payment-success",
+  },
+  {
+    name: "PaymentCancelled",
+    element: <PaymentCancelled />,
+    path: "/payment-cancelled",
+  },
 ];
 
 let errorSpy;
@@ -42,6 +66,11 @@ beforeEach(() => {
       method: "GET",
       pattern: /^\/products$/,
       handler: () => ({ status: 200, json: { products: DEMO_PRODUCTS } }),
+    },
+    {
+      method: "GET",
+      pattern: /^\/payments\/orders$/,
+      handler: () => ({ status: 200, json: { orders: [] } }),
     },
   ]);
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});

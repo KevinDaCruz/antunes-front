@@ -128,6 +128,47 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function changePassword({ currentPassword, newPassword }) {
+    if (!session) {
+      return { success: false, error: "Non connecté." };
+    }
+
+    try {
+      await apiRequest("/users/me/password", {
+        method: "PATCH",
+        body: { currentPassword, newPassword },
+        token: session.token,
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
+  async function forgotPassword(email) {
+    try {
+      const data = await apiRequest("/auth/forgot-password", {
+        method: "POST",
+        body: { email },
+      });
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
+  async function resetPassword({ token, password }) {
+    try {
+      await apiRequest("/auth/reset-password", {
+        method: "POST",
+        body: { token, password },
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
   const value = {
     user: session?.user ?? null,
     token: session?.token ?? null,
@@ -137,6 +178,9 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     updateProfile,
+    changePassword,
+    forgotPassword,
+    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
