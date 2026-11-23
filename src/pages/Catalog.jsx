@@ -70,8 +70,8 @@ function Catalog() {
   return (
     <div className="container catalog-page my-4">
       <SeoHead
-        title="Catalogue"
-        description="Parcours toutes les annonces tech : smartphones, PC, consoles, composants et accessoires d'occasion ou reconditionnés, filtrables par catégorie, état et prix."
+        title="Catalogue tech d'occasion et reconditionnée"
+        description="Parcours toutes les annonces tech : smartphones, PC, consoles, composants et accessoires d'occasion ou reconditionnés, à filtrer par catégorie et par état, à trier par prix."
       />
 
       <section className="catalog-hero mb-4">

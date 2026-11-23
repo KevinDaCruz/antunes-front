@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { apiRequest, ApiError } from "../utils/apiClient";
 import { formatPrice } from "../utils/formatPrice";
+import { buildProductStructuredData } from "../utils/structuredData";
 import SeoHead from "../components/SeoHead";
 import PageLoader from "../components/PageLoader";
 
@@ -128,6 +129,10 @@ function ProductDetails() {
       <SeoHead
         title={product.name}
         description={`${product.name} - ${product.brand}, ${product.condition.toLowerCase()}, à ${product.price}€ sur Antunes.`}
+        structuredData={buildProductStructuredData(
+          product,
+          window.location.href,
+        )}
       />
 
       <section className="product-details-hero mb-4">

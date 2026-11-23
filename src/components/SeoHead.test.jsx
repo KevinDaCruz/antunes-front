@@ -35,4 +35,31 @@ describe("SeoHead", () => {
 
     expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
   });
+
+  it("declares the canonical URL and the structured data of the page", () => {
+    const { unmount } = render(
+      <SeoHead
+        title="iPhone"
+        description="Fiche"
+        structuredData={{ "@type": "Product", name: "iPhone" }}
+      />,
+    );
+
+    expect(
+      document.head.querySelector('link[rel="canonical"]'),
+    ).toHaveAttribute(
+      "href",
+      window.location.origin + window.location.pathname,
+    );
+    const script = document.head.querySelector(
+      'script[type="application/ld+json"]',
+    );
+    expect(JSON.parse(script.textContent).name).toBe("iPhone");
+
+    unmount();
+
+    expect(
+      document.head.querySelector('script[type="application/ld+json"]'),
+    ).toBeNull();
+  });
 });

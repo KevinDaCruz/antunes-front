@@ -667,6 +667,20 @@
   flex-wrap: wrap;
 }
 
+// Bouton secondaire du bandeau : contour blanc, car le cyan de la charte
+// ne contraste pas assez avec le fond dégradé cyan.
+.home-hero-actions .btn-outline-primary {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.home-hero-actions .btn-outline-primary:hover,
+.home-hero-actions .btn-outline-primary:focus-visible {
+  color: var(--bs-primary);
+  background-color: #fff;
+  border-color: #fff;
+}
+
 .home-hero-badges {
   margin-top: 1rem;
   display: flex;
@@ -688,6 +702,9 @@
   animation: fade-in-up 0.75s ease;
 }
 .hero-showcase-card {
+  // Le bandeau d'accueil est en texte blanc : les cartes posées dessus
+  // reprennent la couleur de texte normale pour rester lisibles.
+  color: var(--bs-body-color);
   border-radius: 1rem;
   border: 1px solid rgba(var(--bs-primary-rgb), 0.15);
   background: rgba(var(--bs-body-bg-rgb), 0.86);
@@ -2385,5 +2402,18 @@
   h3 {
     margin-top: 1.25rem;
     font-size: 1.05rem;
+  }
+}
+
+// Respecte le réglage « réduire les animations » du système, utile aux
+// personnes sujettes aux vertiges ou gênées par les mouvements à l'écran.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

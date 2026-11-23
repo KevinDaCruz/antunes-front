@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_NAME = "Antunes";
+const STRUCTURED_DATA_ID = "seo-structured-data";
 
 // Met à jour les balises déjà présentes dans index.html au lieu d'en ajouter
 // de nouvelles : une page ne doit contenir qu'un seul <title> et une seule
@@ -17,19 +18,56 @@ function setMetaContent(name, content) {
   meta.setAttribute("content", content);
 }
 
-function SeoHead({ title, description, noIndex = false }) {
+// URL de référence de la page, sans paramètres de filtre ni de suivi :
+// évite que plusieurs adresses soient vues comme du contenu dupliqué.
+function setCanonicalUrl() {
+  let link = document.head.querySelector('link[rel="canonical"]');
+
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.appendChild(link);
+  }
+
+  link.setAttribute("href", window.location.origin + window.location.pathname);
+}
+
+function setStructuredData(json) {
+  document.getElementById(STRUCTURED_DATA_ID)?.remove();
+
+  if (!json) {
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.id = STRUCTURED_DATA_ID;
+  script.type = "application/ld+json";
+  script.textContent = json;
+  document.head.appendChild(script);
+}
+
+function SeoHead({ title, description, noIndex = false, structuredData }) {
   useEffect(() => {
     document.title = `${title} | ${SITE_NAME}`;
     setMetaContent("description", description);
+    setCanonicalUrl();
 
     if (noIndex) {
       setMetaContent("robots", "noindex, nofollow");
-      return undefined;
+    } else {
+      document.head.querySelector('meta[name="robots"]')?.remove();
     }
-
-    document.head.querySelector('meta[name="robots"]')?.remove();
-    return undefined;
   }, [title, description, noIndex]);
+
+  // Comparé sous forme de texte : la page recrée l'objet à chaque rendu.
+  const structuredDataJson = structuredData
+    ? JSON.stringify(structuredData)
+    : null;
+
+  useEffect(() => {
+    setStructuredData(structuredDataJson);
+    return () => setStructuredData(null);
+  }, [structuredDataJson]);
 
   return null;
 }
