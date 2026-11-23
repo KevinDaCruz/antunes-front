@@ -4,6 +4,8 @@ import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
 import PasswordInput from "../components/PasswordInput";
+import PasswordRequirements from "../components/PasswordRequirements";
+import { isPasswordValid } from "../utils/passwordRules";
 
 const INITIAL_FORM_STATE = {
   firstName: "",
@@ -42,6 +44,11 @@ function Signup() {
       setErrorMessage(
         "Merci d'accepter les conditions d'utilisation pour continuer.",
       );
+      return;
+    }
+
+    if (!isPasswordValid(formValues.password)) {
+      setErrorMessage("Le mot de passe ne respecte pas toutes les règles indiquées.");
       return;
     }
 
@@ -173,10 +180,12 @@ function Signup() {
                   onChange={(event) =>
                     handleFieldChange("password", event.target.value)
                   }
+                  aria-describedby="password-requirements"
                 />
-                <div className="auth-password-hint mt-2">
-                  8 caractères minimum, avec lettres et chiffres.
-                </div>
+                <PasswordRequirements
+                  id="password-requirements"
+                  password={formValues.password}
+                />
               </div>
 
               <div className="mb-3">
@@ -202,8 +211,11 @@ function Signup() {
                   onChange={(event) => setAcceptsTerms(event.target.checked)}
                 />
                 <label className="form-check-label" htmlFor="terms">
-                  J&apos;accepte les conditions d&apos;utilisation et la
-                  politique de confidentialité.
+                  J&apos;accepte les conditions d&apos;utilisation et la{" "}
+                  <Link to="/confidentialite" target="_blank">
+                    politique de confidentialité
+                  </Link>
+                  .
                 </label>
               </div>
 

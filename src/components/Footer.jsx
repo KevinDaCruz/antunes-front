@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 
-function Footer() {
+const LEGAL_LINKS = [
+  { to: "/mentions-legales", label: "Mentions légales" },
+  { to: "/confidentialite", label: "Politique de confidentialité" },
+  { to: "/mes-donnees", label: "Mes données personnelles" },
+];
+
+// onManageCookies n'est fourni que si un outil de mesure d'audience est
+// actif : c'est lui qui rouvre le bandeau de consentement.
+function Footer({ onManageCookies }) {
   const year = new Date().getFullYear();
 
   const quickLinks = [
@@ -70,6 +78,28 @@ function Footer() {
       <div className="site-footer-bottom">
         <div className="container site-footer-bottom-content">
           <p className="mb-0">© {year} Antunes. Tous droits réservés.</p>
+
+          <nav aria-label="Informations légales">
+            <ul className="footer-legal-list">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to}>{link.label}</Link>
+                </li>
+              ))}
+              {onManageCookies ? (
+                <li>
+                  <button
+                    type="button"
+                    className="footer-legal-button"
+                    onClick={onManageCookies}
+                  >
+                    Gérer les cookies
+                  </button>
+                </li>
+              ) : null}
+            </ul>
+          </nav>
+
           <p className="mb-0">Projet de mémoire — Kevin Da Cruz</p>
         </div>
       </div>

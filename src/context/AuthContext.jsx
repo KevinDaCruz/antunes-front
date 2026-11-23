@@ -169,6 +169,52 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Le lien de confirmation peut être ouvert sans être connecté (autre
+  // appareil, session expirée) : on ne met à jour le profil local que si
+  // une session est ouverte.
+  async function verifyEmail(verificationToken) {
+    try {
+      await apiRequest("/auth/verify-email", {
+        method: "POST",
+        body: { token: verificationToken },
+      });
+      setSession((current) =>
+        current
+          ? { ...current, user: { ...current.user, emailVerified: true } }
+          : current,
+      );
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
+  async function resendVerificationEmail() {
+    try {
+      const data = await apiRequest("/auth/resend-verification", {
+        method: "POST",
+        token: session?.token,
+      });
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
+  async function deleteAccount(password) {
+    try {
+      await apiRequest("/users/me", {
+        method: "DELETE",
+        body: { password },
+        token: session?.token,
+      });
+      setSession(null);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: toFormError(error) };
+    }
+  }
+
   const value = {
     user: session?.user ?? null,
     token: session?.token ?? null,
@@ -181,6 +227,9 @@ export function AuthProvider({ children }) {
     changePassword,
     forgotPassword,
     resetPassword,
+    verifyEmail,
+    resendVerificationEmail,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -35,7 +35,7 @@ function renderSignupRouter() {
   );
 }
 
-async function fillValidForm(user, { password = "azerty123" } = {}) {
+async function fillValidForm(user, { password = "Azerty-2026!x" } = {}) {
   await user.type(screen.getByLabelText("Prénom"), "Kevin");
   await user.type(screen.getByLabelText("Nom"), "Da Cruz");
   await user.type(screen.getByLabelText("Pseudo"), "kevintech");
@@ -67,11 +67,40 @@ describe("Signup", () => {
     ).toBeInTheDocument();
   });
 
-  it("rejects mismatched passwords", async () => {
+  it("refuses a password that does not follow the CNIL rules", async () => {
     const user = userEvent.setup();
     renderSignupRouter();
 
     await fillValidForm(user, { password: "azerty123" });
+    await user.click(screen.getByLabelText(/j'accepte les conditions/i));
+    await user.click(screen.getByRole("button", { name: "Créer un compte" }));
+
+    expect(
+      screen.getByText(
+        "Le mot de passe ne respecte pas toutes les règles indiquées.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("ticks each password rule as the user types", async () => {
+    const user = userEvent.setup();
+    renderSignupRouter();
+
+    await user.type(screen.getByLabelText("Mot de passe"), "abcdefghijkl");
+
+    expect(screen.getByText(/12 caractères minimum/)).toHaveTextContent(
+      "(respecté)",
+    );
+    expect(screen.getByText(/Une majuscule/)).toHaveTextContent(
+      "(non respecté)",
+    );
+  });
+
+  it("rejects mismatched passwords", async () => {
+    const user = userEvent.setup();
+    renderSignupRouter();
+
+    await fillValidForm(user, { password: "Azerty-2026!x" });
     await user.clear(screen.getByLabelText("Confirmer le mot de passe"));
     await user.type(
       screen.getByLabelText("Confirmer le mot de passe"),

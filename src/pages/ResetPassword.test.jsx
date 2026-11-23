@@ -64,7 +64,7 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText("Nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.type(
       screen.getByLabelText("Confirmer le mot de passe"),
@@ -93,11 +93,11 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText("Nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.type(
       screen.getByLabelText("Confirmer le mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.click(
       screen.getByRole("button", { name: "Réinitialiser le mot de passe" }),
@@ -128,11 +128,11 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText("Nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.type(
       screen.getByLabelText("Confirmer le mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.click(
       screen.getByRole("button", { name: "Réinitialiser le mot de passe" }),

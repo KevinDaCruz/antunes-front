@@ -17,4 +17,22 @@ describe("Footer", () => {
       screen.getByText(new RegExp(`${new Date().getFullYear()} Antunes`)),
     ).toBeInTheDocument();
   });
+
+  it("links to the legal pages required by French law", () => {
+    render(
+      <MemoryRouter>
+        <Footer />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Mentions légales" }),
+    ).toHaveAttribute("href", "/mentions-legales");
+    expect(
+      screen.getByRole("link", { name: "Politique de confidentialité" }),
+    ).toHaveAttribute("href", "/confidentialite");
+    expect(
+      screen.getByRole("link", { name: "Mes données personnelles" }),
+    ).toHaveAttribute("href", "/mes-donnees");
+  });
 });

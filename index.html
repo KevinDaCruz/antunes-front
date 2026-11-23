@@ -20,10 +20,12 @@
       de préprod (antunes-back.onrender.com), pour que le même build
       fonctionne dans les deux environnements. À restreindre une fois passé
       en vraie production avec un nom de domaine définitif.
+      Les domaines Google ne sont sollicités qu'après consentement aux
+      cookies de mesure d'audience (voir CookieConsentBanner).
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' https://placehold.co data:; connect-src 'self' http://localhost:4000 https://antunes-back.onrender.com https://api-adresse.data.gouv.fr https://www.google-analytics.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline';"
+      content="default-src 'self'; img-src 'self' https://placehold.co https://*.google-analytics.com https://*.googletagmanager.com data:; connect-src 'self' http://localhost:4000 https://antunes-back.onrender.com https://api-adresse.data.gouv.fr https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self';"
     />
     <title>Antunes | Marketplace tech d'occasion</title>
   </head>

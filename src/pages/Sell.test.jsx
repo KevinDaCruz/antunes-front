@@ -7,12 +7,30 @@ import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import Sell from "./Sell";
 import { createApiMock } from "../test/mockApi";
+import { DEMO_USER, FAKE_TOKEN } from "../test/fixtures";
 
 const listProductsRoute = {
   method: "GET",
   pattern: /^\/products$/,
   handler: () => ({ status: 200, json: { products: [] } }),
 };
+
+function meRouteFor(user) {
+  return {
+    method: "GET",
+    pattern: /^\/auth\/me$/,
+    handler: () => ({ status: 200, json: { user } }),
+  };
+}
+
+// La page est protégée par RequireAuth dans l'application : on simule
+// donc toujours une session ouverte.
+function seedSession(user) {
+  window.localStorage.setItem(
+    "antunes-auth",
+    JSON.stringify({ token: FAKE_TOKEN, user }),
+  );
+}
 
 function renderSellRouter() {
   const router = createMemoryRouter(
@@ -37,7 +55,25 @@ function renderSellRouter() {
 describe("Sell", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    globalThis.fetch = createApiMock([listProductsRoute]);
+    seedSession(DEMO_USER);
+    globalThis.fetch = createApiMock([listProductsRoute, meRouteFor(DEMO_USER)]);
+  });
+
+  it("blocks publishing until the email address is confirmed", async () => {
+    const unverifiedUser = { ...DEMO_USER, emailVerified: false };
+    seedSession(unverifiedUser);
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRouteFor(unverifiedUser),
+    ]);
+    renderSellRouter();
+
+    expect(
+      await screen.findByText("Confirme ton adresse e-mail."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Publier l'annonce" }),
+    ).toBeDisabled();
   });
 
   it("shows an error when required fields are missing", async () => {
@@ -54,6 +90,7 @@ describe("Sell", () => {
   it("creates the listing and redirects to its product page", async () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
+      meRouteFor(DEMO_USER),
       {
         method: "POST",
         pattern: /^\/products$/,

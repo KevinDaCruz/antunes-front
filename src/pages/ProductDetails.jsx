@@ -1,33 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useProducts } from "../hooks/useProducts";
 import { useAuth } from "../hooks/useAuth";
 import { apiRequest, ApiError } from "../utils/apiClient";
+import { formatPrice } from "../utils/formatPrice";
 import SeoHead from "../components/SeoHead";
+import PageLoader from "../components/PageLoader";
 
 const DEFAULT_MESSAGE = "Bonjour, cet article est-il toujours disponible ?";
 
 function ProductDetails() {
   const { id } = useParams();
-  const { products } = useProducts();
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const navigate = useNavigate();
   const [contactError, setContactError] = useState("");
   const [buyError, setBuyError] = useState("");
   const [isRedirectingToPayment, setIsRedirectingToPayment] = useState(false);
 
-  const product = products.find((p) => p._id === id);
+  // On garde l'id associé au résultat : tant qu'il ne correspond pas à
+  // l'id de l'URL, c'est que le chargement de cette annonce est en cours.
+  const [loaded, setLoaded] = useState({ id: null, product: null, error: "" });
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    apiRequest(`/products/${id}`)
+      .then((data) => {
+        if (!isCancelled) {
+          setLoaded({ id, product: data.product, error: "" });
+        }
+      })
+      .catch((error) => {
+        if (!isCancelled) {
+          const isNotFound = error instanceof ApiError && error.status === 404;
+          setLoaded({
+            id,
+            product: null,
+            error: isNotFound
+              ? "notFound"
+              : "Impossible de charger cette annonce pour le moment.",
+          });
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id]);
+
+  if (loaded.id !== id) {
+    return <PageLoader />;
+  }
+
+  const { product } = loaded;
 
   if (!product) {
     return (
       <div className="text-center mt-5">
-        <h2 className="mb-4">Produit non trouvé</h2>
+        <h2 className="mb-4">
+          {loaded.error === "notFound" ? "Produit non trouvé" : loaded.error}
+        </h2>
         <Link to="/" className="btn btn-primary">
           Retour à l'accueil
         </Link>
       </div>
     );
   }
+
+  const isSold = product.status === "sold";
+  const isOwnProduct = Boolean(user) && product.seller?._id === user.id;
 
   async function handleBuyNow() {
     if (!isAuthenticated) {
@@ -100,6 +140,9 @@ function ProductDetails() {
           </p>
         </div>
         <div className="product-details-hero-chips">
+          {isSold ? (
+            <span className="product-details-chip is-sold">Vendu</span>
+          ) : null}
           <span className="product-details-chip">{product.condition}</span>
           <span className="product-details-chip">{product.brand}</span>
           <span className="product-details-chip">Livraison possible</span>
@@ -122,6 +165,14 @@ function ProductDetails() {
             <h2 className="text-primary fw-bold display-4 my-2">
               {product.price}€
             </h2>
+            {product.serviceFee !== undefined ? (
+              <p className="text-muted product-details-fee">
+                + {formatPrice(product.serviceFee)} de frais de service
+                (protection acheteur), soit{" "}
+                <strong>{formatPrice(product.price + product.serviceFee)}</strong>{" "}
+                au total.
+              </p>
+            ) : null}
 
             <ul className="list-group list-group-flush mb-4 product-details-list">
               <li className="list-group-item d-flex justify-content-between px-0">
@@ -152,25 +203,36 @@ function ProductDetails() {
               </div>
             ) : null}
 
-            <div className="d-flex gap-2 flex-wrap">
-              <button
-                type="button"
-                className="btn btn-primary btn-lg fx-neon"
-                onClick={handleBuyNow}
-                disabled={isRedirectingToPayment}
-              >
-                {isRedirectingToPayment
-                  ? "Redirection vers le paiement..."
-                  : "Acheter maintenant"}
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-secondary btn-lg"
-                onClick={handleContactSeller}
-              >
-                Contacter le vendeur
-              </button>
-            </div>
+            {isSold ? (
+              <div className="alert alert-info" role="status">
+                Cet article a déjà trouvé preneur.
+              </div>
+            ) : null}
+
+            {isOwnProduct ? (
+              <p className="text-muted mb-0">C&apos;est ton annonce.</p>
+            ) : (
+              <div className="d-flex gap-2 flex-wrap">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-lg fx-neon"
+                  onClick={handleBuyNow}
+                  disabled={isRedirectingToPayment || isSold}
+                >
+                  {isRedirectingToPayment
+                    ? "Redirection vers le paiement..."
+                    : "Acheter maintenant"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-lg"
+                  onClick={handleContactSeller}
+                  disabled={isSold}
+                >
+                  Contacter le vendeur
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="card mt-4 product-seller-card">

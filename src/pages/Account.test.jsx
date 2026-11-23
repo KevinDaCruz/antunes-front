@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "../test/test-utils";
 import Account from "./Account";
@@ -15,6 +15,12 @@ const meRoute = {
   method: "GET",
   pattern: /^\/auth\/me$/,
   handler: () => ({ status: 200, json: { user: DEMO_USER } }),
+};
+
+const myProductsRoute = {
+  method: "GET",
+  pattern: /^\/products\/mine$/,
+  handler: () => ({ status: 200, json: { products: [] } }),
 };
 
 const favoritesRoute = {
@@ -52,7 +58,7 @@ describe("Account", () => {
 
   it("shows the profile and an empty listings state for a new user", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute, ordersRoute]);
+    globalThis.fetch = createApiMock([listProductsRoute, meRoute, myProductsRoute, favoritesRoute, ordersRoute]);
 
     renderWithProviders(<Account />);
 
@@ -68,6 +74,7 @@ describe("Account", () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
       meRoute,
+      myProductsRoute,
       favoritesRoute,
       ordersRoute,
       {
@@ -94,7 +101,7 @@ describe("Account", () => {
 
   it("logs out when clicking Se déconnecter", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, favoritesRoute, ordersRoute]);
+    globalThis.fetch = createApiMock([listProductsRoute, meRoute, myProductsRoute, favoritesRoute, ordersRoute]);
     const user = userEvent.setup();
     renderWithProviders(<Account />);
 
@@ -110,6 +117,7 @@ describe("Account", () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
       meRoute,
+      myProductsRoute,
       favoritesRoute,
       ordersRoute,
     ]);
@@ -126,6 +134,7 @@ describe("Account", () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
       meRoute,
+      myProductsRoute,
       favoritesRoute,
       {
         method: "GET",
@@ -158,6 +167,7 @@ describe("Account", () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
       meRoute,
+      myProductsRoute,
       favoritesRoute,
       ordersRoute,
       {
@@ -171,15 +181,15 @@ describe("Account", () => {
 
     await user.type(
       await screen.findByLabelText("Mot de passe actuel"),
-      "azerty123",
+      "Azerty-2026!x",
     );
     await user.type(
       screen.getByLabelText("Nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.type(
       screen.getByLabelText("Confirmer le nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.click(
       screen.getByRole("button", { name: "Changer le mot de passe" }),
@@ -195,6 +205,7 @@ describe("Account", () => {
     globalThis.fetch = createApiMock([
       listProductsRoute,
       meRoute,
+      myProductsRoute,
       favoritesRoute,
       ordersRoute,
     ]);
@@ -203,11 +214,11 @@ describe("Account", () => {
 
     await user.type(
       await screen.findByLabelText("Mot de passe actuel"),
-      "azerty123",
+      "Azerty-2026!x",
     );
     await user.type(
       screen.getByLabelText("Nouveau mot de passe"),
-      "newpassword456",
+      "NouveauMdp-456!",
     );
     await user.type(
       screen.getByLabelText("Confirmer le nouveau mot de passe"),
@@ -220,5 +231,137 @@ describe("Account", () => {
     expect(
       screen.getByText("Les nouveaux mots de passe ne correspondent pas."),
     ).toBeInTheDocument();
+  });
+
+  it("lists my listings, including sold ones", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      ordersRoute,
+      {
+        method: "GET",
+        pattern: /^\/products\/mine$/,
+        handler: () => ({
+          status: 200,
+          json: {
+            products: [
+              { _id: "p1", name: "PS5 Slim", condition: "Bon état", price: 400, status: "sold" },
+              { _id: "p2", name: "Raspberry Pi 4", condition: "Neuf", price: 65, status: "available" },
+            ],
+          },
+        }),
+      },
+    ]);
+
+    renderWithProviders(<Account />);
+
+    expect(await screen.findByText("PS5 Slim")).toBeInTheDocument();
+    expect(screen.getByText("Vendu")).toBeInTheDocument();
+    expect(screen.getByText("En ligne")).toBeInTheDocument();
+  });
+
+  it("asks to confirm the email address when it is not confirmed yet", async () => {
+    const unverifiedUser = { ...DEMO_USER, emailVerified: false };
+    window.localStorage.setItem(
+      "antunes-auth",
+      JSON.stringify({ token: FAKE_TOKEN, user: unverifiedUser }),
+    );
+    const resendHandler = vi.fn(() => ({
+      status: 200,
+      json: { message: "Un nouveau lien de confirmation vient d'être envoyé." },
+    }));
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      {
+        method: "GET",
+        pattern: /^\/auth\/me$/,
+        handler: () => ({ status: 200, json: { user: unverifiedUser } }),
+      },
+      myProductsRoute,
+      favoritesRoute,
+      ordersRoute,
+      {
+        method: "POST",
+        pattern: /^\/auth\/resend-verification$/,
+        handler: resendHandler,
+      },
+    ]);
+    const user = userEvent.setup();
+
+    renderWithProviders(<Account />);
+
+    await user.click(
+      await screen.findByRole("button", { name: "Renvoyer le lien" }),
+    );
+
+    expect(
+      await screen.findByText(
+        "Un nouveau lien de confirmation vient d'être envoyé.",
+      ),
+    ).toBeInTheDocument();
+    expect(resendHandler).toHaveBeenCalledOnce();
+  });
+
+  it("downloads the personal data export", async () => {
+    seedAuthenticatedSession();
+    const exportHandler = vi.fn(() => ({
+      status: 200,
+      json: { profile: { email: DEMO_USER.email } },
+    }));
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      myProductsRoute,
+      favoritesRoute,
+      ordersRoute,
+      { method: "GET", pattern: /^\/users\/me\/export$/, handler: exportHandler },
+    ]);
+    URL.createObjectURL = vi.fn(() => "blob:antunes-export");
+    URL.revokeObjectURL = vi.fn();
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
+    const user = userEvent.setup();
+
+    renderWithProviders(<Account />);
+
+    await user.click(
+      await screen.findByRole("button", { name: "Télécharger mes données" }),
+    );
+
+    expect(exportHandler).toHaveBeenCalledOnce();
+    expect(clickSpy).toHaveBeenCalledOnce();
+    clickSpy.mockRestore();
+  });
+
+  it("deletes the account after password confirmation", async () => {
+    seedAuthenticatedSession();
+    const deleteHandler = vi.fn(() => ({ status: 204 }));
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      myProductsRoute,
+      favoritesRoute,
+      ordersRoute,
+      { method: "DELETE", pattern: /^\/users\/me$/, handler: deleteHandler },
+    ]);
+    const user = userEvent.setup();
+
+    renderWithProviders(<Account />);
+
+    await user.type(
+      await screen.findByLabelText("Confirme avec ton mot de passe"),
+      "Azerty-2026!x",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Supprimer définitivement mon compte" }),
+    );
+
+    expect(deleteHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ body: { password: "Azerty-2026!x" } }),
+    );
+    expect(window.localStorage.getItem("antunes-auth")).toBeNull();
   });
 });

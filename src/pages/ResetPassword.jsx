@@ -3,6 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
 import PasswordInput from "../components/PasswordInput";
+import PasswordRequirements from "../components/PasswordRequirements";
+import { isPasswordValid } from "../utils/passwordRules";
 
 function ResetPassword() {
   const { resetPassword } = useAuth();
@@ -17,6 +19,11 @@ function ResetPassword() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (!isPasswordValid(password)) {
+      setErrorMessage("Le mot de passe ne respecte pas toutes les règles indiquées.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setErrorMessage("Les mots de passe ne correspondent pas.");
@@ -84,6 +91,11 @@ function ResetPassword() {
                 id="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                aria-describedby="password-requirements"
+              />
+              <PasswordRequirements
+                id="password-requirements"
+                password={password}
               />
             </div>
 

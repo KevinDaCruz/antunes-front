@@ -21,6 +21,10 @@ const Messages = lazy(() => import("./pages/Messages"));
 const Account = lazy(() => import("./pages/Account"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancelled = lazy(() => import("./pages/PaymentCancelled"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const LegalNotice = lazy(() => import("./pages/LegalNotice"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const PrivacyRequest = lazy(() => import("./pages/PrivacyRequest"));
 
 function withSuspense(element) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
@@ -58,6 +62,22 @@ const router = createBrowserRouter([
       {
         path: "/reset-password",
         element: withSuspense(<ResetPassword />),
+      },
+      {
+        path: "/verify-email",
+        element: withSuspense(<VerifyEmail />),
+      },
+      {
+        path: "/mentions-legales",
+        element: withSuspense(<LegalNotice />),
+      },
+      {
+        path: "/confidentialite",
+        element: withSuspense(<PrivacyPolicy />),
+      },
+      {
+        path: "/mes-donnees",
+        element: withSuspense(<PrivacyRequest />),
       },
       {
         element: <RequireAuth />,

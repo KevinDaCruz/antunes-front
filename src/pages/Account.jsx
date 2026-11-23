@@ -6,6 +6,10 @@ import { apiRequest } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import AddressAutocomplete from "../components/AddressAutocomplete";
 import PasswordInput from "../components/PasswordInput";
+import PasswordRequirements from "../components/PasswordRequirements";
+import EmailVerificationNotice from "../components/EmailVerificationNotice";
+import PersonalDataPanel from "../components/PersonalDataPanel";
+import { isPasswordValid } from "../utils/passwordRules";
 
 const INITIAL_PASSWORD_FORM = {
   currentPassword: "",
@@ -15,7 +19,7 @@ const INITIAL_PASSWORD_FORM = {
 
 function Account() {
   const { user, token, logout, updateProfile, changePassword } = useAuth();
-  const { products, favoriteProducts } = useProducts();
+  const { favoriteProducts } = useProducts();
   const navigate = useNavigate();
   const [addressError, setAddressError] = useState("");
 
@@ -51,9 +55,27 @@ function Account() {
     });
   }
 
-  const myListings = user
-    ? products.filter((product) => product.seller?._id === user.id)
-    : [];
+  const [myListings, setMyListings] = useState([]);
+  const activeListingsCount = myListings.filter(
+    (product) => product.status !== "sold",
+  ).length;
+
+  useEffect(() => {
+    async function loadMyListings() {
+      if (!token) {
+        return;
+      }
+
+      try {
+        const data = await apiRequest("/products/mine", { token });
+        setMyListings(data.products);
+      } catch {
+        setMyListings([]);
+      }
+    }
+
+    loadMyListings();
+  }, [token]);
 
   useEffect(() => {
     async function loadOrders() {
@@ -113,6 +135,11 @@ function Account() {
 
   async function handlePasswordSubmit(event) {
     event.preventDefault();
+
+    if (!isPasswordValid(passwordForm.newPassword)) {
+      setPasswordError("Le mot de passe ne respecte pas toutes les règles indiquées.");
+      return;
+    }
 
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
       setPasswordError("Les nouveaux mots de passe ne correspondent pas.");
@@ -174,10 +201,12 @@ function Account() {
         </div>
       </section>
 
+      <EmailVerificationNotice reason="Tu pourras ensuite publier des annonces." />
+
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-6">
           <article className="account-stat-card">
-            <p className="account-stat-value mb-1">{myListings.length}</p>
+            <p className="account-stat-value mb-1">{activeListingsCount}</p>
             <p className="mb-0 text-muted">Annonces actives</p>
           </article>
         </div>
@@ -338,6 +367,11 @@ function Account() {
                     onChange={(event) =>
                       handlePasswordFieldChange("newPassword", event.target.value)
                     }
+                    aria-describedby="new-password-requirements"
+                  />
+                  <PasswordRequirements
+                    id="new-password-requirements"
+                    password={passwordForm.newPassword}
                   />
                 </div>
 
@@ -406,9 +440,15 @@ function Account() {
                           <td>{product.condition}</td>
                           <td>{product.price}€</td>
                           <td>
-                            <span className="badge text-bg-success account-status-badge">
-                              En ligne
-                            </span>
+                            {product.status === "sold" ? (
+                              <span className="badge text-bg-secondary account-status-badge">
+                                Vendu
+                              </span>
+                            ) : (
+                              <span className="badge text-bg-success account-status-badge">
+                                En ligne
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -475,6 +515,12 @@ function Account() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="row g-4 mt-1">
+        <div className="col-12">
+          <PersonalDataPanel />
         </div>
       </div>
     </div>

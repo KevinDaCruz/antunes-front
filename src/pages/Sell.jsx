@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
+import { useAuth } from "../hooks/useAuth";
 import { HEADER_CATEGORIES } from "../constants/navigation";
 import { ApiError } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
+import EmailVerificationNotice from "../components/EmailVerificationNotice";
 
 const CONDITIONS = ["Neuf", "Reconditionné", "Bon état", "Occasion"];
 
@@ -18,6 +20,8 @@ const INITIAL_FORM_STATE = {
 
 function Sell() {
   const { addProduct } = useProducts();
+  const { user } = useAuth();
+  const canPublish = Boolean(user?.emailVerified);
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState(INITIAL_FORM_STATE);
@@ -90,6 +94,8 @@ function Sell() {
 
       <div className="row g-4">
         <div className="col-12 col-lg-8">
+          <EmailVerificationNotice reason="Cette étape est nécessaire pour publier une annonce." />
+
           <form className="sell-form-card" onSubmit={handleSubmit}>
             {errorMessage ? (
               <div className="alert alert-danger" role="alert">
@@ -229,7 +235,7 @@ function Sell() {
               <button
                 type="submit"
                 className="btn btn-primary btn-lg fx-neon"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !canPublish}
               >
                 {isSubmitting ? "Publication..." : "Publier l'annonce"}
               </button>

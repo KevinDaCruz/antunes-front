@@ -6,6 +6,7 @@ export const DEMO_USER = {
   email: "kevin@example.com",
   firstName: "Kevin",
   lastName: "Da Cruz",
+  emailVerified: true,
 };
 
 export const DEMO_SELLER = {
