@@ -77,7 +77,7 @@ function ProductCard({ product }) {
             {product.status === "sold" ? (
               <span className="badge text-bg-secondary mb-2">Vendu</span>
             ) : null}
-            <h5 className="card-title fw-bold">{product.price}€</h5>
+            <p className="h5 card-title fw-bold">{product.price}€</p>
             <p className="card-text text-muted mb-1">{product.brand}</p>
             <p className="card-text text-secondary">{product.condition}</p>
           </div>

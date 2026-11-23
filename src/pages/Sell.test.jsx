@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import Sell from "./Sell";
@@ -42,13 +41,11 @@ function renderSellRouter() {
   );
 
   return render(
-    <HelmetProvider>
-      <AuthProvider>
-        <ProductsProvider>
-          <RouterProvider router={router} />
-        </ProductsProvider>
-      </AuthProvider>
-    </HelmetProvider>,
+    <AuthProvider>
+      <ProductsProvider>
+        <RouterProvider router={router} />
+      </ProductsProvider>
+    </AuthProvider>,
   );
 }
 
@@ -56,7 +53,10 @@ describe("Sell", () => {
   beforeEach(() => {
     window.localStorage.clear();
     seedSession(DEMO_USER);
-    globalThis.fetch = createApiMock([listProductsRoute, meRouteFor(DEMO_USER)]);
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRouteFor(DEMO_USER),
+    ]);
   });
 
   it("blocks publishing until the email address is confirmed", async () => {

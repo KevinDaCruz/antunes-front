@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import ProductDetails from "./ProductDetails";
@@ -17,7 +16,11 @@ const PRODUCTS_BY_ID = {
     _id: "my-product",
     seller: { _id: DEMO_USER.id, pseudo: DEMO_USER.pseudo },
   },
-  "product-with-fee": { ...DEMO_PRODUCTS[0], _id: "product-with-fee", serviceFee: 48.2 },
+  "product-with-fee": {
+    ...DEMO_PRODUCTS[0],
+    _id: "product-with-fee",
+    serviceFee: 48.2,
+  },
 };
 
 const listProductsRoute = {
@@ -66,13 +69,11 @@ function renderProductDetails(productId) {
   );
 
   return render(
-    <HelmetProvider>
-      <AuthProvider>
-        <ProductsProvider>
-          <RouterProvider router={router} />
-        </ProductsProvider>
-      </AuthProvider>
-    </HelmetProvider>,
+    <AuthProvider>
+      <ProductsProvider>
+        <RouterProvider router={router} />
+      </ProductsProvider>
+    </AuthProvider>,
   );
 }
 
@@ -158,9 +159,9 @@ describe("ProductDetails", () => {
     globalThis.fetch = createApiMock(productRoutes);
     renderProductDetails("product-with-fee");
 
-    expect(
-      await screen.findByText(/de frais de service/),
-    ).toHaveTextContent("48,20 €");
+    expect(await screen.findByText(/de frais de service/)).toHaveTextContent(
+      "48,20 €",
+    );
     expect(screen.getByText("998,20 €")).toBeInTheDocument();
   });
 
@@ -244,7 +245,9 @@ describe("ProductDetails", () => {
           pattern: /^\/payments\/checkout-session$/,
           handler: () => ({
             status: 400,
-            json: { error: { message: "Tu ne peux pas acheter ta propre annonce." } },
+            json: {
+              error: { message: "Tu ne peux pas acheter ta propre annonce." },
+            },
           }),
         },
       ]);

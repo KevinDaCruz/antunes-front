@@ -135,7 +135,11 @@ function Login() {
               <span>Accès sécurisé</span>
             </div>
 
-            <div className="auth-trust-row" aria-label="Garanties de sécurité">
+            <div
+              className="auth-trust-row"
+              role="group"
+              aria-label="Garanties de sécurité"
+            >
               <span className="auth-trust-pill">Données protégées</span>
               <span className="auth-trust-pill">Session sécurisée</span>
             </div>

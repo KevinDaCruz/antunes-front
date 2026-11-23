@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import Login from "./Login";
@@ -25,13 +24,11 @@ function renderLoginRouter(initialEntry = "/login") {
   );
 
   return render(
-    <HelmetProvider>
-      <AuthProvider>
-        <ProductsProvider>
-          <RouterProvider router={router} />
-        </ProductsProvider>
-      </AuthProvider>
-    </HelmetProvider>,
+    <AuthProvider>
+      <ProductsProvider>
+        <RouterProvider router={router} />
+      </ProductsProvider>
+    </AuthProvider>,
   );
 }
 

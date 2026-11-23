@@ -102,14 +102,14 @@ function Home() {
           <div className="home-hero-showcase">
             <div className="hero-showcase-card hero-showcase-card-main">
               <p className="hero-showcase-label">Produit en tendance</p>
-              <h3 className="h5 mb-2">PS5 Slim • Bon état</h3>
+              <p className="h5 mb-2">PS5 Slim • Bon état</p>
               <p className="mb-0 text-muted">
                 Livraison rapide • Vendeur vérifié
               </p>
             </div>
             <div className="hero-showcase-card hero-showcase-card-float">
               <p className="hero-showcase-label">Annonce récente</p>
-              <h4 className="h6 mb-1">SSD Samsung 980 Pro</h4>
+              <p className="h6 mb-1">SSD Samsung 980 Pro</p>
               <span className="fw-semibold text-primary">110€</span>
             </div>
           </div>

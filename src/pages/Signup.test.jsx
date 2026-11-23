@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import Signup from "./Signup";
@@ -25,13 +24,11 @@ function renderSignupRouter() {
   );
 
   return render(
-    <HelmetProvider>
-      <AuthProvider>
-        <ProductsProvider>
-          <RouterProvider router={router} />
-        </ProductsProvider>
-      </AuthProvider>
-    </HelmetProvider>,
+    <AuthProvider>
+      <ProductsProvider>
+        <RouterProvider router={router} />
+      </ProductsProvider>
+    </AuthProvider>,
   );
 }
 
@@ -41,10 +38,7 @@ async function fillValidForm(user, { password = "Azerty-2026!x" } = {}) {
   await user.type(screen.getByLabelText("Pseudo"), "kevintech");
   await user.type(screen.getByLabelText("Adresse e-mail"), "kevin@example.com");
   await user.type(screen.getByLabelText("Mot de passe"), password);
-  await user.type(
-    screen.getByLabelText("Confirmer le mot de passe"),
-    password,
-  );
+  await user.type(screen.getByLabelText("Confirmer le mot de passe"), password);
 }
 
 describe("Signup", () => {

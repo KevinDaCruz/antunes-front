@@ -172,7 +172,9 @@ function ProductDetails() {
               <p className="text-muted product-details-fee">
                 + {formatPrice(product.serviceFee)} de frais de service
                 (protection acheteur), soit{" "}
-                <strong>{formatPrice(product.price + product.serviceFee)}</strong>{" "}
+                <strong>
+                  {formatPrice(product.price + product.serviceFee)}
+                </strong>{" "}
                 au total.
               </p>
             ) : null}
@@ -248,9 +250,9 @@ function ProductDetails() {
                 height="50"
               />
               <div>
-                <h5 className="card-title mb-0">
+                <p className="h5 card-title mb-0">
                   {product.seller?.pseudo ?? "Vendeur_Pseudo"}
-                </h5>
+                </p>
                 <p className="card-text text-muted mb-0">
                   Membre depuis {memberSinceYear ?? "peu de temps"}
                 </p>

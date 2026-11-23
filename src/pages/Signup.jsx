@@ -48,7 +48,9 @@ function Signup() {
     }
 
     if (!isPasswordValid(formValues.password)) {
-      setErrorMessage("Le mot de passe ne respecte pas toutes les règles indiquées.");
+      setErrorMessage(
+        "Le mot de passe ne respecte pas toutes les règles indiquées.",
+      );
       return;
     }
 
@@ -233,7 +235,11 @@ function Signup() {
               <span>Démarrage rapide</span>
             </div>
 
-            <div className="auth-trust-row" aria-label="Bénéfices inscription">
+            <div
+              className="auth-trust-row"
+              role="group"
+              aria-label="Bénéfices inscription"
+            >
               <span className="auth-trust-pill">Profil en 2 min</span>
               <span className="auth-trust-pill">Sans frais cachés</span>
             </div>

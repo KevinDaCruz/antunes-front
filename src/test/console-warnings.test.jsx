@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import { createApiMock } from "./mockApi";
@@ -91,13 +90,11 @@ describe("console warnings", () => {
       );
 
       render(
-        <HelmetProvider>
-          <AuthProvider>
-            <ProductsProvider>
-              <RouterProvider router={router} />
-            </ProductsProvider>
-          </AuthProvider>
-        </HelmetProvider>,
+        <AuthProvider>
+          <ProductsProvider>
+            <RouterProvider router={router} />
+          </ProductsProvider>
+        </AuthProvider>,
       );
 
       // Laisse le temps aux appels API simulés (asynchrones) de se résoudre

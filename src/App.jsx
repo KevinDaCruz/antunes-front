@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 
 import Layout from "./components/Layout";
 import RequireAuth from "./components/RequireAuth";
@@ -119,13 +118,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <HelmetProvider>
-      <AuthProvider>
-        <ProductsProvider>
-          <RouterProvider router={router} />
-        </ProductsProvider>
-      </AuthProvider>
-    </HelmetProvider>
+    <AuthProvider>
+      <ProductsProvider>
+        <RouterProvider router={router} />
+      </ProductsProvider>
+    </AuthProvider>
   );
 }
 
