@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import {
+  createMemoryRouter,
+  RouterProvider,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import { ProductsProvider } from "../context/ProductsContext";
 import ProductDetails from "./ProductDetails";
@@ -57,12 +61,17 @@ function seedAuthenticatedSession() {
   );
 }
 
+function LoginStub() {
+  const location = useLocation();
+  return <div>Connexion, retour vers {location.state?.from?.pathname}</div>;
+}
+
 function renderProductDetails(productId) {
   const router = createMemoryRouter(
     [
       { path: "/product/:id", element: <ProductDetails /> },
       { path: "/messages", element: <div>Messagerie</div> },
-      { path: "/login", element: <div>Connexion</div> },
+      { path: "/login", element: <LoginStub /> },
       { path: "/", element: <div>Accueil</div> },
     ],
     { initialEntries: [`/product/${productId}`] },
@@ -109,7 +118,7 @@ describe("ProductDetails", () => {
       await screen.findByRole("button", { name: "Contacter le vendeur" }),
     );
 
-    expect(await screen.findByText("Connexion")).toBeInTheDocument();
+    expect(await screen.findByText(/^Connexion/)).toBeInTheDocument();
   });
 
   it("starts a conversation and navigates to /messages for a logged-in user", async () => {
@@ -136,7 +145,7 @@ describe("ProductDetails", () => {
     expect(await screen.findByText("Messagerie")).toBeInTheDocument();
   });
 
-  it("redirects a logged-out visitor to /login when buying", async () => {
+  it("redirects a logged-out visitor to /login, then back to the product, when buying", async () => {
     globalThis.fetch = createApiMock(productRoutes);
     const user = userEvent.setup();
     renderProductDetails("product-1");
@@ -145,7 +154,9 @@ describe("ProductDetails", () => {
       await screen.findByRole("button", { name: "Acheter maintenant" }),
     );
 
-    expect(await screen.findByText("Connexion")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Connexion, retour vers /product/product-1"),
+    ).toBeInTheDocument();
   });
 
   it("shows a loader while the product is loading", () => {

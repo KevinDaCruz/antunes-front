@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { apiRequest, ApiError } from "../utils/apiClient";
 import { formatPrice } from "../utils/formatPrice";
@@ -13,6 +13,7 @@ function ProductDetails() {
   const { id } = useParams();
   const { isAuthenticated, token, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [contactError, setContactError] = useState("");
   const [buyError, setBuyError] = useState("");
   const [isRedirectingToPayment, setIsRedirectingToPayment] = useState(false);
@@ -72,7 +73,8 @@ function ProductDetails() {
 
   async function handleBuyNow() {
     if (!isAuthenticated) {
-      navigate("/login");
+      // Après la connexion, la page Login ramène le visiteur sur l'annonce.
+      navigate("/login", { state: { from: location } });
       return;
     }
 
@@ -98,7 +100,8 @@ function ProductDetails() {
 
   async function handleContactSeller() {
     if (!isAuthenticated) {
-      navigate("/login");
+      // Après la connexion, la page Login ramène le visiteur sur l'annonce.
+      navigate("/login", { state: { from: location } });
       return;
     }
 
