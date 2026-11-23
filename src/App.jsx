@@ -25,6 +25,7 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const LegalNotice = lazy(() => import("./pages/LegalNotice"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const PrivacyRequest = lazy(() => import("./pages/PrivacyRequest"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function withSuspense(element) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
             element: withSuspense(<PaymentCancelled />),
           },
         ],
+      },
+      {
+        path: "*",
+        element: withSuspense(<NotFound />),
       },
     ],
   },

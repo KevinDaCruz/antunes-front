@@ -35,9 +35,11 @@ function Header() {
         <div className="container">
           <Link to="/" className="navbar-brand">
             <img
-              src="/images/logo.png"
+              src="/images/logo-header.webp"
               alt="Antunes Logo"
               className="navbar-logo-img"
+              width="100"
+              height="30"
             />
           </Link>
 

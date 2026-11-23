@@ -156,6 +156,9 @@ function ProductDetails() {
               src={product.imageUrl}
               alt={product.name}
               className="img-fluid rounded w-100 product-details-image"
+              width="600"
+              height="600"
+              fetchPriority="high"
             />
           </div>
         </div>
@@ -241,6 +244,8 @@ function ProductDetails() {
                 src="https://placehold.co/50x50.png?text=Avatar"
                 alt="vendeur"
                 className="rounded-circle me-3"
+                width="50"
+                height="50"
               />
               <div>
                 <h5 className="card-title mb-0">

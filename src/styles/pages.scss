@@ -376,8 +376,10 @@
   animation: fade-in-up 0.45s ease;
 }
 
+// Occupe tout l'écran pendant le chargement d'une page pour que le
+// pied de page ne remonte pas puis redescende (décalage de mise en page).
 .page-loader {
-  min-height: 60vh;
+  min-height: 100vh;
 }
 
 .address-autocomplete {
