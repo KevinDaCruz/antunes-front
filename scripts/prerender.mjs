@@ -2,7 +2,7 @@
 // Chaque page reçoit son HTML, son titre, sa description, son URL canonique
 // et ses données structurées. Les autres adresses (fiche produit, compte…)
 // reçoivent shell.html, la coquille vide de l'application.
-import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -47,8 +47,19 @@ function buildPage(template, url, { html, head }) {
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 }
 
-const template = await readFile(join(dist, "index.html"), "utf8");
-await copyFile(join(dist, "index.html"), join(dist, "shell.html"));
+// La page pré-rendue s'affiche avant le JavaScript : on précharge la police
+// pour éviter que le texte ne se réorganise à son arrivée (décalage CLS).
+const fontFile = (await readdir(join(dist, "assets"))).find((name) =>
+  /^archivo-latin-wght-normal-.*\.woff2$/.test(name),
+);
+const fontPreload = fontFile
+  ? `<link rel="preload" href="/assets/${fontFile}" as="font" type="font/woff2" crossorigin />\n  `
+  : "";
+const template = (await readFile(join(dist, "index.html"), "utf8")).replace(
+  "</head>",
+  `  ${fontPreload}</head>`,
+);
+await writeFile(join(dist, "shell.html"), template);
 
 const { render } = await import(pathToFileURL(serverEntry).href);
 
