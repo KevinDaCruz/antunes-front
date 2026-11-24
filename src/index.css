@@ -63,7 +63,7 @@
   @apply transition-[transform,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg active:translate-x-1 active:translate-y-1 active:shadow-none;
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-(--radius-btn) border-3 border-ink px-5 py-3 text-[15px] font-extrabold text-ink shadow-brutal-sm transition-[transform,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-1 active:translate-y-1 active:shadow-none;
+  @apply inline-flex items-center justify-center gap-2 rounded-(--radius-btn) border-3 border-ink px-5 py-3 text-[15px] font-extrabold text-ink shadow-brutal-sm transition-[transform,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-55 disabled:shadow-none;
 }
 @utility btn-pink {
   @apply btn bg-pink;
