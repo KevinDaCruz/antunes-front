@@ -15,6 +15,8 @@ function Logo({ onDark = false }) {
         alt=""
         width="160"
         height="42"
+        // Le logo du pied de page n'est jamais visible au chargement.
+        loading={onDark ? "lazy" : undefined}
         className="h-10 w-auto"
       />
     </Link>

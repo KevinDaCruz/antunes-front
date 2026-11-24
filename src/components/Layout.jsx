@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import CookieConsentBanner from "./CookieConsentBanner";
 import { readConsent } from "../utils/cookieConsent";
 import { isAnalyticsConfigured } from "../utils/analytics";
+import { useIsClient } from "../hooks/useIsClient";
 
 function Layout() {
   // Sans outil de mesure d'audience configuré, aucun cookie n'est déposé :
@@ -13,6 +14,8 @@ function Layout() {
   const [isCookieBannerOpen, setIsCookieBannerOpen] = useState(
     () => isAnalyticsConfigured() && readConsent() === null,
   );
+  // Le choix est enregistré dans le navigateur : rien à afficher au pré-rendu.
+  const isClient = useIsClient();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -38,7 +41,7 @@ function Layout() {
       />
       <ScrollRestoration />
 
-      {isCookieBannerOpen ? (
+      {isClient && isCookieBannerOpen ? (
         <CookieConsentBanner onClose={() => setIsCookieBannerOpen(false)} />
       ) : null}
     </div>

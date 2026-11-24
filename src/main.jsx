@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { initAnalytics } from "./utils/analytics.js";
@@ -21,8 +21,17 @@ if (readConsent()?.analytics) {
   initAnalytics();
 }
 
-createRoot(document.getElementById("root")).render(
+const container = document.getElementById("root");
+const app = (
   <StrictMode>
     <App />
-  </StrictMode>,
+  </StrictMode>
 );
+
+// Les pages publiques arrivent déjà rendues (voir scripts/prerender.mjs) :
+// React s'y rattache. Les autres pages sont construites dans le navigateur.
+if (container.hasChildNodes()) {
+  hydrateRoot(container, app);
+} else {
+  createRoot(container).render(app);
+}

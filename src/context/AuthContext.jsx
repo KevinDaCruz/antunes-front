@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AuthContext } from "./auth-context";
+import { useIsClient } from "../hooks/useIsClient";
 import { apiRequest, ApiError } from "../utils/apiClient";
 
 const AUTH_STORAGE_KEY = "antunes-auth";
@@ -31,6 +32,7 @@ function toFormError(error) {
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(readStoredSession);
   const [isLoading, setIsLoading] = useState(true);
+  const isClient = useIsClient();
 
   useEffect(() => {
     if (session) {
@@ -215,10 +217,14 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Une page pré-rendue est générée pour un visiteur anonyme : la session
+  // enregistrée n'est exposée qu'après l'hydratation.
+  const visibleSession = isClient ? session : null;
+
   const value = {
-    user: session?.user ?? null,
-    token: session?.token ?? null,
-    isAuthenticated: Boolean(session?.user),
+    user: visibleSession?.user ?? null,
+    token: visibleSession?.token ?? null,
+    isAuthenticated: Boolean(visibleSession?.user),
     isLoading,
     login,
     signup,

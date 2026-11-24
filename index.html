@@ -25,6 +25,35 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- Identité du site pour les moteurs de recherche (schema.org). Un bloc
+         de données n'est pas exécuté : la CSP ne le bloque pas. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://antunes-front.vercel.app/#organization",
+            "name": "Antunes",
+            "url": "https://antunes-front.vercel.app/",
+            "logo": "https://antunes-front.vercel.app/apple-touch-icon.png",
+            "description": "Place de marché de la tech d'occasion et reconditionnée entre particuliers."
+          },
+          {
+            "@type": "WebSite",
+            "name": "Antunes",
+            "url": "https://antunes-front.vercel.app/",
+            "inLanguage": "fr-FR",
+            "publisher": { "@id": "https://antunes-front.vercel.app/#organization" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://antunes-front.vercel.app/catalog?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
     <title>Antunes | Marketplace tech d'occasion</title>
   </head>
   <body>

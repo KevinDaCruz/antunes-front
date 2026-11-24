@@ -103,7 +103,7 @@ function Home() {
   return (
     <>
       <SeoHead
-        title="Achète et revends de la tech d'occasion"
+        title="Achète et revends ta tech d'occasion en confiance"
         description="Antunes, la marketplace pour acheter et revendre smartphones, PC, consoles et composants électroniques d'occasion ou reconditionnés en toute confiance."
       />
 
@@ -269,6 +269,7 @@ function Home() {
                   alt=""
                   width="80"
                   height="80"
+                  loading="lazy"
                   className={`size-20 transition group-hover:scale-110 ${index % 2 ? "rotate-3" : "-rotate-3"}`}
                 />
                 <span className="text-[15px] font-extrabold">{category}</span>

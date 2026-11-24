@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { prerenderedHead } from "../utils/prerenderedHead";
 
 const SITE_NAME = "Antunes";
 const STRUCTURED_DATA_ID = "seo-structured-data";
@@ -47,6 +48,20 @@ function setStructuredData(json) {
 }
 
 function SeoHead({ title, description, noIndex = false, structuredData }) {
+  // Comparé sous forme de texte : la page recrée l'objet à chaque rendu.
+  const structuredDataJson = structuredData
+    ? JSON.stringify(structuredData)
+    : null;
+
+  if (typeof document === "undefined") {
+    Object.assign(prerenderedHead, {
+      title: `${title} | ${SITE_NAME}`,
+      description,
+      noIndex,
+      structuredDataJson,
+    });
+  }
+
   useEffect(() => {
     document.title = `${title} | ${SITE_NAME}`;
     setMetaContent("description", description);
@@ -58,11 +73,6 @@ function SeoHead({ title, description, noIndex = false, structuredData }) {
       document.head.querySelector('meta[name="robots"]')?.remove();
     }
   }, [title, description, noIndex]);
-
-  // Comparé sous forme de texte : la page recrée l'objet à chaque rendu.
-  const structuredDataJson = structuredData
-    ? JSON.stringify(structuredData)
-    : null;
 
   useEffect(() => {
     setStructuredData(structuredDataJson);

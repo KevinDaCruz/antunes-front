@@ -5,6 +5,10 @@ const CONSENT_STORAGE_KEY = "antunes-cookie-consent";
 const CONSENT_LIFETIME_MS = 6 * 30 * 24 * 60 * 60 * 1000;
 
 export function readConsent() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   const rawValue = window.localStorage.getItem(CONSENT_STORAGE_KEY);
 
   if (!rawValue) {
