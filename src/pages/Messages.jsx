@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Send } from "lucide-react";
 import SeoHead from "../components/SeoHead";
+import {
+  getCategoryIllustration,
+  getCategoryStyle,
+} from "../constants/categories";
 import { useAuth } from "../hooks/useAuth";
 import { apiRequest, ApiError } from "../utils/apiClient";
 
@@ -95,17 +100,17 @@ function Messages() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container messages-page my-4 text-center">
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
         <SeoHead
           title="Messagerie"
           description="Gère tes conversations sur Antunes."
           noIndex
         />
-        <h1 className="h2 mb-3">Messagerie</h1>
-        <p className="text-muted mb-4">
+        <h1 className="text-5xl">Messagerie</h1>
+        <p className="mt-4 font-semibold text-ink-soft">
           Connecte-toi pour voir et envoyer tes messages.
         </p>
-        <Link to="/login" className="btn btn-primary fx-neon">
+        <Link to="/login" className="btn-pink mt-8">
           Se connecter
         </Link>
       </div>
@@ -113,129 +118,173 @@ function Messages() {
   }
 
   return (
-    <div className="container messages-page my-4">
+    <div className="mx-auto max-w-7xl px-6 pt-10">
       <SeoHead
         title="Messagerie"
         description="Gère tes conversations avec acheteurs et vendeurs sur Antunes."
         noIndex
       />
 
-      <section className="messages-hero mb-4">
-        <div>
-          <p className="messages-kicker mb-2">Communication instantanée</p>
-          <h1 className="h2 mb-2">Messagerie</h1>
-          <p className="text-muted mb-0">
-            Gère tes discussions avec acheteurs et vendeurs depuis une interface
-            claire et rapide.
-          </p>
-        </div>
-        <div className="messages-hero-chips">
-          <span className="messages-chip">
-            {conversations.length} conversations
-          </span>
-          <span className="messages-chip">Réponse rapide</span>
-          <span className="messages-chip">Historique centralisé</span>
-        </div>
-      </section>
+      <h1 className="text-5xl md:text-6xl">Messages</h1>
 
       {errorMessage ? (
-        <div className="alert alert-danger" role="alert">
+        <div className="alert-error mt-6" role="alert">
           {errorMessage}
         </div>
       ) : null}
 
       {isLoading ? (
-        <p className="text-muted">Chargement de tes conversations...</p>
+        <p className="mt-6 font-semibold">Chargement de tes conversations...</p>
       ) : conversations.length === 0 ? (
-        <section className="favorites-empty-state" role="alert">
-          <h2 className="h5 mb-2">Aucune conversation pour le moment</h2>
-          <p className="text-muted mb-0">
-            Contacte un vendeur depuis une annonce pour démarrer une
-            discussion.
+        <section className="card mt-8 p-10 text-center" role="alert">
+          <img
+            src="/illustrations/smartphones.svg"
+            alt=""
+            width="112"
+            height="112"
+            className="mx-auto size-28 -rotate-6"
+          />
+          <h2 className="mt-4 text-2xl">Aucune conversation pour le moment</h2>
+          <p className="mt-2 font-semibold text-ink-soft">
+            Contacte un vendeur depuis une annonce pour démarrer une discussion.
           </p>
         </section>
       ) : (
-        <div className="row g-4">
-          <div className="col-12 col-lg-4">
-            <div className="list-group shadow-sm messages-list messages-list-modern">
-              {conversations.map((conversation) => {
-                const otherParticipant = getOtherParticipant(
-                  conversation,
-                  user.id,
-                );
-                const lastMessage =
-                  conversation.messages[conversation.messages.length - 1];
+        <div className="mt-8 grid overflow-hidden rounded-(--radius-card) bg-white text-ink brutal md:grid-cols-[320px_1fr]">
+          <ul
+            className="border-b-3 border-ink md:border-r-3 md:border-b-0"
+            aria-label="Conversations"
+          >
+            {conversations.map((conversation) => {
+              const otherParticipant = getOtherParticipant(
+                conversation,
+                user.id,
+              );
+              const lastMessage =
+                conversation.messages[conversation.messages.length - 1];
+              const isActive = conversation._id === activeConversation?._id;
+              const { tint } = getCategoryStyle(conversation.product?.category);
 
-                return (
+              return (
+                <li key={conversation._id}>
                   <button
-                    key={conversation._id}
                     type="button"
-                    className={`list-group-item list-group-item-action messages-list-item ${
-                      conversation._id === activeConversation?._id
-                        ? "is-active"
-                        : ""
+                    className={`flex w-full items-center gap-3 border-b-2 border-ink p-4 text-left ${
+                      isActive ? "bg-yellow text-ink" : "hover:bg-cream"
                     }`}
+                    aria-current={isActive ? "true" : undefined}
                     onClick={() =>
                       setSearchParams({ conversationId: conversation._id })
                     }
                   >
-                    <div className="d-flex w-100 justify-content-between">
-                      <h2 className="h6 mb-1">{otherParticipant?.pseudo}</h2>
-                    </div>
-                    <p className="mb-1 text-muted small">
-                      {conversation.product?.name}
-                    </p>
-                    <small>{lastMessage?.content ?? ""}</small>
+                    <span
+                      className={`grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink ${tint}`}
+                    >
+                      <img
+                        src={getCategoryIllustration(
+                          conversation.product?.category,
+                        )}
+                        alt=""
+                        width="36"
+                        height="36"
+                        className="size-9"
+                      />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-extrabold">
+                        {otherParticipant?.pseudo}
+                      </span>
+                      <span className="block truncate text-sm font-semibold opacity-75">
+                        {conversation.product?.name}
+                      </span>
+                      <span className="block truncate text-xs font-medium opacity-75">
+                        {lastMessage?.content ?? ""}
+                      </span>
+                    </span>
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                </li>
+              );
+            })}
+          </ul>
 
-          <div className="col-12 col-lg-8">
-            <div className="card shadow-sm border-0 h-100 messages-thread-card">
-              <div className="card-body d-flex flex-column gap-3">
-                <div className="messages-thread-header">
-                  <h2 className="h5 mb-1">
-                    {getOtherParticipant(activeConversation, user.id)?.pseudo}
-                  </h2>
-                  <p className="text-muted mb-0">
-                    {activeConversation.product?.name}
-                  </p>
-                </div>
+          <section
+            className="flex min-h-[520px] flex-col"
+            aria-label="Conversation"
+          >
+            <header className="flex items-center gap-3 border-b-3 border-ink p-4">
+              <span className="grid size-11 place-items-center rounded-full border-2 border-ink bg-lilac font-black text-ink">
+                {(
+                  getOtherParticipant(activeConversation, user.id)?.pseudo ??
+                  "?"
+                )
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
+              <div className="min-w-0">
+                <h2 className="truncate font-sans text-base font-extrabold">
+                  {getOtherParticipant(activeConversation, user.id)?.pseudo}
+                </h2>
+                <p className="truncate text-sm font-semibold opacity-75">
+                  {activeConversation.product?.name}
+                </p>
+              </div>
+              {activeConversation.product?._id ? (
+                <Link
+                  to={`/product/${activeConversation.product._id}`}
+                  className="btn-white ml-auto !py-2 text-sm"
+                >
+                  Voir l&apos;annonce
+                </Link>
+              ) : null}
+            </header>
 
-                <div className="messages-thread-body mb-0 flex-grow-1 d-flex flex-column gap-2">
-                  {activeConversation.messages.map((message) => (
-                    <article
+            <div
+              className="flex-1 bg-cream p-6"
+              role="log"
+              aria-label="Messages"
+            >
+              <ol className="flex flex-col gap-4">
+                {activeConversation.messages.map((message) => {
+                  const isMine = message.sender === user.id;
+                  return (
+                    <li
                       key={message._id}
-                      className={`message-bubble ${
-                        message.sender === user.id ? "from-me" : "from-them"
+                      className={`max-w-md rounded-2xl border-2 border-ink px-4 py-3 text-ink shadow-brutal-sm ${
+                        isMine
+                          ? "self-end rounded-br-sm bg-pink"
+                          : "self-start rounded-bl-sm bg-white"
                       }`}
                     >
-                      <p className="mb-1">{message.content}</p>
-                      <small>{formatMessageTime(message.createdAt)}</small>
-                    </article>
-                  ))}
-                </div>
-
-                <form
-                  className="d-flex gap-2 messages-compose-form"
-                  onSubmit={handleMessageSubmit}
-                >
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Écrire un message..."
-                    value={draftMessage}
-                    onChange={(event) => setDraftMessage(event.target.value)}
-                  />
-                  <button type="submit" className="btn btn-primary fx-neon">
-                    Envoyer
-                  </button>
-                </form>
-              </div>
+                      <p className="font-semibold">{message.content}</p>
+                      <p className="mt-1 text-right text-xs font-bold">
+                        {formatMessageTime(message.createdAt)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
-          </div>
+
+            <form
+              className="flex gap-3 border-t-3 border-ink p-4"
+              onSubmit={handleMessageSubmit}
+            >
+              <label htmlFor="message-draft" className="sr-only">
+                Ton message
+              </label>
+              <input
+                id="message-draft"
+                type="text"
+                className="field"
+                placeholder="Écrire un message..."
+                value={draftMessage}
+                onChange={(event) => setDraftMessage(event.target.value)}
+              />
+              <button type="submit" className="btn-ink" aria-label="Envoyer">
+                <Send className="size-5" aria-hidden="true" />
+              </button>
+            </form>
+          </section>
         </div>
       )}
     </div>

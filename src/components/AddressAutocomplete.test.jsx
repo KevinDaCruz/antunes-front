@@ -52,7 +52,9 @@ describe("AddressAutocomplete", () => {
     await user.type(screen.getByRole("combobox"), "1 rue de Paris");
 
     expect(
-      await screen.findByText("Recherche d'adresse indisponible pour le moment."),
+      await screen.findByText(
+        "Recherche d'adresse indisponible pour le moment.",
+      ),
     ).toBeInTheDocument();
   });
 });

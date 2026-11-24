@@ -24,35 +24,42 @@ function ForgotPassword() {
   }
 
   return (
-    <section className="auth-page">
+    <section className="mx-auto max-w-lg px-6 pt-16">
       <SeoHead
         title="Mot de passe oublié"
         description="Réinitialise ton mot de passe Antunes."
         noIndex
       />
 
-      <div className="container auth-container">
-        <div className="auth-card mx-auto" style={{ maxWidth: "480px" }}>
-          <h2 className="auth-form-title">Mot de passe oublié</h2>
-          <p className="text-muted mb-4">
-            Indique ton adresse e-mail, on t&apos;envoie un lien pour choisir
-            un nouveau mot de passe.
+      <div>
+        <div className="card p-8 md:p-10">
+          <h1 className="text-4xl">Mot de passe oublié</h1>
+          <p className="mt-2 mb-6 font-semibold text-ink-soft">
+            Indique ton adresse e-mail, on t&apos;envoie un lien pour choisir un
+            nouveau mot de passe.
           </p>
 
           {feedback ? (
-            <div className={`alert alert-${feedback.type}`} role="alert">
+            <div
+              className={
+                feedback.type === "success"
+                  ? "alert-success mb-4"
+                  : "alert-error mb-4"
+              }
+              role="alert"
+            >
               {feedback.text}
             </div>
           ) : null}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="label">
                 Adresse e-mail
               </label>
               <input
                 type="email"
-                className="form-control"
+                className="field"
                 id="email"
                 placeholder="nom@exemple.com"
                 value={email}
@@ -60,10 +67,10 @@ function ForgotPassword() {
               />
             </div>
 
-            <div className="d-grid">
+            <div>
               <button
                 type="submit"
-                className="btn btn-primary auth-submit-btn"
+                className="btn-ink w-full !py-4 text-base"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Envoi..." : "Envoyer le lien"}
@@ -71,8 +78,10 @@ function ForgotPassword() {
             </div>
           </form>
 
-          <p className="text-center mt-3 auth-switch-text">
-            <Link to="/login">Retour à la connexion</Link>
+          <p className="mt-6 text-center text-sm font-semibold">
+            <Link to="/login" className="link">
+              Retour à la connexion
+            </Link>
           </p>
         </div>
       </div>

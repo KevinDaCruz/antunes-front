@@ -1,0 +1,163 @@
+/* Système de design d'Antunes, style néo-brutaliste : aplats vifs, contours
+   noirs épais et ombres nettes décalées. Ces jetons sont les mêmes que ceux
+   des maquettes Figma (memoire/maquettes). */
+@import "tailwindcss";
+@import "@fontsource-variable/archivo";
+
+@theme {
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0b0b0c;
+  --color-ink-soft: #3a3a3d;
+  --color-ink-muted: #5c5c60;
+  --color-cream: #fff4d6;
+  --color-cream-deep: #fbe7b5;
+  --color-night: #141414;
+  --color-night-soft: #1f1f1f;
+
+  /* Palette vive : rose pour l'action principale, puis jaune, ciel, menthe, lilas. */
+  --color-pink: #ff5ca8;
+  --color-pink-light: #ffc2de;
+  --color-yellow: #ffd23f;
+  --color-sky: #7cc8ff;
+  --color-mint: #b8f2c6;
+  --color-lilac: #c9b8ff;
+  --color-peach: #ffc49b;
+
+  --radius-card: 1rem;
+  --radius-btn: 0.75rem;
+
+  --shadow-brutal-sm: 3px 3px 0 var(--color-ink);
+  --shadow-brutal: 5px 5px 0 var(--color-ink);
+  --shadow-brutal-lg: 8px 8px 0 var(--color-ink);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    overflow-x: clip;
+    @apply bg-cream font-sans text-ink;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-black tracking-tight;
+  }
+  :focus-visible {
+    @apply outline-3 outline-offset-3 outline-ink;
+  }
+}
+
+/* Contour et ombre caractéristiques du style néo-brutaliste. */
+@utility brutal {
+  @apply border-3 border-ink shadow-brutal;
+}
+@utility brutal-sm {
+  @apply border-2 border-ink shadow-brutal-sm;
+}
+/* Effet « bouton physique » : il se soulève au survol et s'enfonce au clic. */
+@utility press {
+  @apply transition-[transform,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg active:translate-x-1 active:translate-y-1 active:shadow-none;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-(--radius-btn) border-3 border-ink px-5 py-3 text-[15px] font-extrabold text-ink shadow-brutal-sm transition-[transform,box-shadow] duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-1 active:translate-y-1 active:shadow-none;
+}
+@utility btn-pink {
+  @apply btn bg-pink;
+}
+@utility btn-yellow {
+  @apply btn bg-yellow;
+}
+@utility btn-white {
+  @apply btn bg-white;
+}
+@utility btn-ink {
+  @apply btn bg-ink text-cream;
+}
+@utility card {
+  @apply rounded-(--radius-card) bg-white brutal;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3.5 py-1.5 text-sm font-bold text-ink transition hover:bg-yellow;
+}
+@utility eyebrow {
+  @apply inline-flex items-center gap-2 rounded-full border-2 border-ink bg-white px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-ink uppercase;
+}
+@utility field {
+  @apply w-full rounded-(--radius-btn) border-3 border-ink bg-white px-4 py-3 text-[15px] font-medium text-ink placeholder:text-ink-muted focus:shadow-brutal-sm focus:outline-none;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-extrabold text-ink;
+}
+
+/* Respecte le réglage « réduire les animations » du système. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Bandeau défilant des catégories sur la page d'accueil. */
+@keyframes defilement {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility animate-defilement {
+  animation: defilement 40s linear infinite;
+}
+
+/* Messages d'information, de succès et d'erreur des formulaires. */
+@utility alert {
+  @apply rounded-xl border-2 border-ink px-4 py-3 text-sm font-bold text-ink;
+}
+@utility alert-error {
+  @apply alert bg-[#ffd9dc];
+}
+@utility alert-success {
+  @apply alert bg-mint;
+}
+@utility alert-info {
+  @apply alert bg-sky;
+}
+/* Lien dans un texte : souligné rose, épais. */
+@utility link {
+  @apply font-extrabold underline decoration-pink decoration-3 underline-offset-4 hover:decoration-ink;
+}
+
+/* Pages légales : mise en forme du contenu éditorial (titres, listes,
+   tableaux) sans classe sur chaque balise. */
+@layer components {
+  .legal-page h2 {
+    @apply mt-10 mb-3 text-3xl;
+  }
+  .legal-page h3 {
+    @apply mt-6 mb-2 text-xl;
+  }
+  .legal-page :where(p, li) {
+    @apply text-base leading-relaxed font-medium text-ink-soft;
+  }
+  .legal-page :where(ul) {
+    @apply list-disc space-y-1 pl-6;
+  }
+  .legal-page :where(p, li) a {
+    @apply link;
+  }
+  .legal-table {
+    @apply w-full overflow-hidden rounded-xl border-3 border-ink text-sm;
+  }
+  .legal-table th {
+    @apply border-b-3 border-ink bg-yellow p-3 text-left font-black text-ink;
+  }
+  .legal-table td {
+    @apply border-b-2 border-ink/15 p-3 align-top;
+  }
+}

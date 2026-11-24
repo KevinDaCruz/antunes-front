@@ -42,7 +42,9 @@ describe("Cookie consent banner", () => {
     expect(
       screen.getByRole("dialog", { name: "Tes choix concernant les cookies" }),
     ).toBeInTheDocument();
-    expect(document.querySelector("script[src*='googletagmanager']")).toBeNull();
+    expect(
+      document.querySelector("script[src*='googletagmanager']"),
+    ).toBeNull();
   });
 
   it("offers refusing as easily as accepting", () => {
@@ -72,7 +74,9 @@ describe("Cookie consent banner", () => {
     await user.click(screen.getByRole("button", { name: "Tout refuser" }));
 
     expect(readConsent().analytics).toBe(false);
-    expect(document.querySelector("script[src*='googletagmanager']")).toBeNull();
+    expect(
+      document.querySelector("script[src*='googletagmanager']"),
+    ).toBeNull();
   });
 
   it("can be reopened from the footer to change one's mind", async () => {

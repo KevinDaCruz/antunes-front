@@ -1,3 +1,4 @@
+import { Download, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -50,67 +51,76 @@ function PersonalDataPanel() {
   }
 
   return (
-    <div className="card border-0 shadow-sm account-listings-card">
-      <div className="card-body">
-        <h2 className="h5 mb-3">Mes données personnelles</h2>
+    <section className="card p-6" aria-labelledby="personal-data-title">
+      <h2 id="personal-data-title" className="text-2xl">
+        Mes données personnelles
+      </h2>
 
-        <p className="text-muted">
-          Tu peux télécharger à tout moment l&apos;ensemble des données
-          qu&apos;Antunes conserve sur toi (profil, annonces, achats,
-          messages). Pour toute autre demande, utilise le{" "}
-          <Link to="/mes-donnees">formulaire dédié</Link>. Plus
-          d&apos;informations dans notre{" "}
-          <Link to="/confidentialite">politique de confidentialité</Link>.
-        </p>
+      <p className="mt-2 text-sm font-semibold text-ink-soft">
+        Tu peux télécharger à tout moment l&apos;ensemble des données
+        qu&apos;Antunes conserve sur toi (profil, annonces, achats, messages).
+        Pour toute autre demande, utilise le{" "}
+        <Link to="/mes-donnees" className="link">
+          formulaire dédié
+        </Link>
+        . Plus d&apos;informations dans notre{" "}
+        <Link to="/confidentialite" className="link">
+          politique de confidentialité
+        </Link>
+        .
+      </p>
 
-        {exportError ? (
-          <div className="alert alert-danger py-2" role="alert">
-            {exportError}
-          </div>
-        ) : null}
+      {exportError ? (
+        <div className="alert-error mt-4" role="alert">
+          {exportError}
+        </div>
+      ) : null}
 
+      <button
+        type="button"
+        className="btn-white mt-4 w-full"
+        onClick={handleExportClick}
+        disabled={isExporting}
+      >
+        <Download className="size-4.5" aria-hidden="true" />
+        {isExporting ? "Préparation..." : "Télécharger mes données"}
+      </button>
+
+      <h3 className="mt-8 text-xl">Supprimer mon compte</h3>
+      <p className="mt-1 text-sm font-semibold text-ink-soft">
+        Ton profil, tes annonces en vente et tes conversations seront
+        définitivement supprimés. Les commandes sont conservées 10 ans, comme
+        l&apos;exige la loi pour les pièces comptables.
+      </p>
+
+      {deleteError ? (
+        <div className="alert-error mt-4" role="alert">
+          {deleteError}
+        </div>
+      ) : null}
+
+      <form className="mt-4 space-y-3" onSubmit={handleDeleteSubmit}>
+        <label htmlFor="delete-account-password" className="label">
+          Confirme avec ton mot de passe
+        </label>
+        <PasswordInput
+          id="delete-account-password"
+          value={deletePassword}
+          onChange={(event) => setDeletePassword(event.target.value)}
+          required
+        />
         <button
-          type="button"
-          className="btn btn-outline-primary btn-sm mb-4"
-          onClick={handleExportClick}
-          disabled={isExporting}
+          type="submit"
+          className="btn w-full bg-white !text-[#a3131b]"
+          disabled={isDeleting || !deletePassword}
         >
-          {isExporting ? "Préparation..." : "Télécharger mes données"}
+          <Trash2 className="size-4.5" aria-hidden="true" />
+          {isDeleting
+            ? "Suppression..."
+            : "Supprimer définitivement mon compte"}
         </button>
-
-        <h3 className="h6">Supprimer mon compte</h3>
-        <p className="text-muted small">
-          Ton profil, tes annonces en vente et tes conversations seront
-          définitivement supprimés. Les commandes sont conservées 10 ans,
-          comme l&apos;exige la loi pour les pièces comptables.
-        </p>
-
-        {deleteError ? (
-          <div className="alert alert-danger py-2" role="alert">
-            {deleteError}
-          </div>
-        ) : null}
-
-        <form className="account-delete-form" onSubmit={handleDeleteSubmit}>
-          <label htmlFor="delete-account-password" className="form-label">
-            Confirme avec ton mot de passe
-          </label>
-          <PasswordInput
-            id="delete-account-password"
-            value={deletePassword}
-            onChange={(event) => setDeletePassword(event.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="btn btn-outline-danger btn-sm mt-2"
-            disabled={isDeleting || !deletePassword}
-          >
-            {isDeleting ? "Suppression..." : "Supprimer définitivement mon compte"}
-          </button>
-        </form>
-      </div>
-    </div>
+      </form>
+    </section>
   );
 }
 

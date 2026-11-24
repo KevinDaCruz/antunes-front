@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { SlidersHorizontal } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import SeoHead from "../components/SeoHead";
 import { useProducts } from "../hooks/useProducts";
@@ -67,146 +68,130 @@ function Catalog() {
     return result;
   }, [products, category, condition, searchQuery, sortBy]);
 
+  const resultsCount = `${filteredProducts.length} annonce${
+    filteredProducts.length > 1 ? "s" : ""
+  }`;
+
   return (
-    <div className="container catalog-page my-4">
+    <div className="mx-auto max-w-7xl px-6 pt-10">
       <SeoHead
         title="Catalogue tech d'occasion et reconditionnée"
         description="Parcours toutes les annonces tech : smartphones, PC, consoles, composants et accessoires d'occasion ou reconditionnés, à filtrer par catégorie et par état, à trier par prix."
       />
 
-      <section className="catalog-hero mb-4">
-        <div>
-          <p className="catalog-kicker mb-2">Marketplace Tech</p>
-          <h1 className="h2 mb-2">Explore les meilleures offres du moment</h1>
-          <p className="text-muted mb-0">
-            Filtre rapidement les annonces et trouve le produit parfait au bon
-            prix.
-          </p>
-        </div>
-        <div className="catalog-hero-meta">
-          <span className="catalog-pill">
-            {filteredProducts.length} annonce
-            {filteredProducts.length > 1 ? "s" : ""}
-          </span>
-          <span className="catalog-pill">Vendeurs vérifiés</span>
-          <span className="catalog-pill">Mise à jour en temps réel</span>
-        </div>
-        <div className="catalog-tags mt-3">
-          {HEADER_CATEGORIES.map((categoryOption) => (
-            <button
-              key={categoryOption}
-              type="button"
-              className={`catalog-tag catalog-tag-btn ${
-                category === categoryOption ? "is-active" : ""
-              }`}
-              onClick={() => updateFilter("category", categoryOption)}
-            >
-              {categoryOption}
-            </button>
-          ))}
-        </div>
-      </section>
+      <nav
+        className="text-sm font-bold text-ink-muted"
+        aria-label="Fil d'Ariane"
+      >
+        <Link to="/" className="hover:underline">
+          Accueil
+        </Link>{" "}
+        / <span className="text-ink">Catalogue</span>
+      </nav>
+      <h1 className="mt-4 text-5xl md:text-6xl">
+        {searchQuery ? `Résultats pour « ${searchQuery} »` : "Catalogue"}
+      </h1>
 
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-        <h2 className="h5 mb-0">
-          {searchQuery
-            ? `Résultats pour "${searchQuery}"`
-            : "Résultats disponibles"}
-        </h2>
-        <span className="badge catalog-result-badge">
-          Tri: {SORT_LABELS[sortBy]}
-        </span>
+      <div
+        className="mt-6 flex gap-2 overflow-x-auto pb-2"
+        role="group"
+        aria-label="Filtrer par catégorie"
+      >
+        <button
+          type="button"
+          className={`chip shrink-0 ${category ? "" : "!bg-yellow"}`}
+          aria-pressed={!category}
+          onClick={() => updateFilter("category", "")}
+        >
+          Toutes
+        </button>
+        {HEADER_CATEGORIES.map((categoryOption) => (
+          <button
+            key={categoryOption}
+            type="button"
+            className={`chip shrink-0 ${category === categoryOption ? "!bg-yellow" : ""}`}
+            aria-pressed={category === categoryOption}
+            onClick={() => updateFilter("category", categoryOption)}
+          >
+            {categoryOption}
+          </button>
+        ))}
       </div>
 
-      <div className="row g-4">
-        <aside className="col-12 col-lg-3">
-          <div className="card shadow-sm border-0 catalog-filters-card catalog-filters-premium">
-            <div className="card-body">
-              <h2 className="h6 text-uppercase text-muted mb-3">
-                Filtres intelligents
-              </h2>
-
-              <div className="mb-3">
-                <label htmlFor="category" className="form-label">
-                  Catégorie
-                </label>
-                <select
-                  id="category"
-                  className="form-select"
-                  value={category}
-                  onChange={(event) =>
-                    updateFilter("category", event.target.value)
-                  }
-                >
-                  <option value="">Toutes</option>
-                  {HEADER_CATEGORIES.map((categoryOption) => (
-                    <option key={categoryOption} value={categoryOption}>
-                      {categoryOption}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="condition" className="form-label">
-                  État
-                </label>
-                <select
-                  id="condition"
-                  className="form-select"
-                  value={condition}
-                  onChange={(event) =>
-                    updateFilter("condition", event.target.value)
-                  }
-                >
-                  <option value="">Tous</option>
-                  {CONDITIONS.map((conditionOption) => (
-                    <option key={conditionOption} value={conditionOption}>
-                      {conditionOption}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="sort" className="form-label">
-                  Trier par
-                </label>
-                <select
-                  id="sort"
-                  className="form-select"
-                  value={sortBy}
-                  onChange={(event) => updateFilter("sort", event.target.value)}
-                >
-                  <option value="recent">{SORT_LABELS.recent}</option>
-                  <option value="priceAsc">{SORT_LABELS.priceAsc}</option>
-                  <option value="priceDesc">{SORT_LABELS.priceDesc}</option>
-                </select>
-              </div>
-
-              <div className="d-grid gap-2">
-                <button
-                  className="btn btn-outline-secondary"
-                  type="button"
-                  onClick={handleResetFilters}
-                >
-                  Réinitialiser
-                </button>
-              </div>
-            </div>
+      <div className="mt-6 grid gap-8 lg:grid-cols-[280px_1fr]">
+        <aside
+          className="card h-fit space-y-5 p-6 lg:sticky lg:top-44"
+          aria-label="Filtres"
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl">Filtres</h2>
+            <SlidersHorizontal className="size-5" aria-hidden="true" />
           </div>
+          <div>
+            <label htmlFor="condition" className="label">
+              État
+            </label>
+            <select
+              id="condition"
+              className="field"
+              value={condition}
+              onChange={(event) =>
+                updateFilter("condition", event.target.value)
+              }
+            >
+              <option value="">Tous</option>
+              {CONDITIONS.map((conditionOption) => (
+                <option key={conditionOption} value={conditionOption}>
+                  {conditionOption}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="sort" className="label">
+              Trier par
+            </label>
+            <select
+              id="sort"
+              className="field"
+              value={sortBy}
+              onChange={(event) => updateFilter("sort", event.target.value)}
+            >
+              <option value="recent">{SORT_LABELS.recent}</option>
+              <option value="priceAsc">{SORT_LABELS.priceAsc}</option>
+              <option value="priceDesc">{SORT_LABELS.priceDesc}</option>
+            </select>
+          </div>
+          <button
+            className="btn-white w-full"
+            type="button"
+            onClick={handleResetFilters}
+          >
+            Réinitialiser
+          </button>
         </aside>
 
-        <section className="col-12 col-lg-9 catalog-products-wrap">
+        <section aria-label="Résultats">
+          <p className="text-[15px] font-bold" aria-live="polite">
+            <span className="font-black">{resultsCount}</span> · Tri :{" "}
+            {SORT_LABELS[sortBy].toLowerCase()}
+          </p>
           {filteredProducts.length === 0 ? (
-            <div className="catalog-empty-state" role="alert">
-              <h3 className="h5 mb-2">Aucune annonce ne correspond</h3>
-              <p className="text-muted mb-0">
-                Essaie d'élargir tes filtres ou de modifier ta recherche.
+            <div className="card mt-6 p-10 text-center" role="alert">
+              <img
+                src="/illustrations/manettes.svg"
+                alt=""
+                width="112"
+                height="112"
+                className="mx-auto size-28 rotate-6"
+              />
+              <h3 className="mt-4 text-2xl">Aucune annonce ne correspond</h3>
+              <p className="mt-2 font-semibold text-ink-soft">
+                Essaie d&apos;élargir tes filtres ou de modifier ta recherche.
               </p>
             </div>
           ) : (
-            <div className="row">
+            <div className="mt-6 grid grid-cols-2 gap-5 md:gap-7 xl:grid-cols-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}

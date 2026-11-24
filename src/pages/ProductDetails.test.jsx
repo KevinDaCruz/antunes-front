@@ -105,7 +105,7 @@ describe("ProductDetails", () => {
     expect(
       await screen.findByRole("heading", { name: "iPhone 15 Pro" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("950€")).toBeInTheDocument();
+    expect(screen.getAllByText("950 €").length).toBeGreaterThan(0);
     expect(screen.getByText("TechHunter75")).toBeInTheDocument();
   });
 
@@ -170,9 +170,10 @@ describe("ProductDetails", () => {
     globalThis.fetch = createApiMock(productRoutes);
     renderProductDetails("product-with-fee");
 
-    expect(await screen.findByText(/de frais de service/)).toHaveTextContent(
-      "48,20 €",
-    );
+    expect(
+      await screen.findByText("Frais de service (protection acheteur)"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("48,20 €")).toBeInTheDocument();
     expect(screen.getByText("998,20 €")).toBeInTheDocument();
   });
 

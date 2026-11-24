@@ -31,7 +31,9 @@ describe("Legal pages", () => {
     expect(
       screen.getByRole("rowheader", { name: "Mesure d'audience" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Consentement (bandeau cookies)")).toBeInTheDocument();
+    expect(
+      screen.getByText("Consentement (bandeau cookies)"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("10 ans (article L123-22 du Code de commerce)"),
     ).toBeInTheDocument();

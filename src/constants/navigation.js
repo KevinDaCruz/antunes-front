@@ -12,9 +12,3 @@ export const HEADER_CATEGORIES = [
   "Audio",
   "Accessoires",
 ];
-
-export const HEADER_PRIMARY_LINKS = [
-  { to: "/catalog", label: "Catalogue" },
-  { to: "/favorites", label: "Favoris" },
-  { to: "/messages", label: "Messages" },
-];

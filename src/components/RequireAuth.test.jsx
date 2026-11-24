@@ -11,9 +11,7 @@ function renderProtectedRouter(initialPath = "/protected") {
     [
       {
         element: <RequireAuth />,
-        children: [
-          { path: "/protected", element: <div>Contenu protégé</div> },
-        ],
+        children: [{ path: "/protected", element: <div>Contenu protégé</div> }],
       },
       { path: "/login", element: <div>Page de connexion</div> },
     ],

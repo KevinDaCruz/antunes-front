@@ -54,7 +54,9 @@ describe("Favorites", () => {
 
     renderWithProviders(<Favorites />);
 
-    expect(await screen.findByAltText("iPhone 15 Pro")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "iPhone 15 Pro" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText("Aucun favori pour le moment"),
     ).not.toBeInTheDocument();

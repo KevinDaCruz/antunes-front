@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { apiRequest, ApiError } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
+import { Check } from "lucide-react";
+import { formatPrice } from "../utils/formatPrice";
 
 function PaymentSuccess() {
   const { token } = useAuth();
@@ -40,35 +42,46 @@ function PaymentSuccess() {
   }, [sessionId, token]);
 
   return (
-    <div className="container my-5 text-center">
+    <div className="mx-auto max-w-2xl px-6 py-20 text-center">
       <SeoHead
         title="Paiement confirmé"
         description="Confirmation de ton achat sur Antunes."
         noIndex
       />
 
-      <h1 className="h2 mb-3">Paiement confirmé 🎉</h1>
+      <span className="mx-auto grid size-24 place-items-center rounded-full border-3 border-ink bg-mint text-ink shadow-brutal">
+        <Check className="size-12" aria-hidden="true" />
+      </span>
+      <h1 className="mt-8 mb-4 text-5xl md:text-6xl">
+        Paiement confirmé&nbsp;!
+      </h1>
 
       {isLoading ? (
-        <p className="text-muted">Vérification de ta commande...</p>
+        <p className="font-semibold text-ink-soft">
+          Vérification de ta commande...
+        </p>
       ) : errorMessage ? (
-        <div className="alert alert-danger d-inline-block" role="alert">
+        <div className="alert-error mb-6 inline-block" role="alert">
           {errorMessage}
         </div>
       ) : order ? (
-        <p className="text-muted mb-4">
+        <p className="mb-8 text-lg font-semibold text-ink-soft">
           Ton achat de <strong>{order.product?.name}</strong> pour{" "}
-          <strong>{order.amountTotal}€</strong> a bien été enregistré.
+          <strong>{formatPrice(order.amountTotal)}</strong>, frais de protection
+          compris, a bien été enregistré. Le vendeur est prévenu et
+          l&apos;annonce passe en « Vendu ».
         </p>
       ) : (
-        <p className="text-muted mb-4">Merci pour ton achat.</p>
+        <p className="mb-8 text-lg font-semibold text-ink-soft">
+          Merci pour ton achat.
+        </p>
       )}
 
-      <div className="d-flex justify-content-center gap-2 mt-3">
-        <Link to="/catalog" className="btn btn-primary fx-neon">
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <Link to="/catalog" className="btn-pink">
           Continuer mes achats
         </Link>
-        <Link to="/account" className="btn btn-outline-secondary">
+        <Link to="/account" className="btn-white">
           Voir mon compte
         </Link>
       </div>

@@ -27,7 +27,8 @@ const PROCESSINGS = [
     purpose: "E-mails de service (confirmation d'adresse, mot de passe oublié)",
     data: "Adresse e-mail",
     legalBasis: "Exécution du contrat",
-    retention: "Liens valables 24 heures (confirmation) et 1 heure (mot de passe)",
+    retention:
+      "Liens valables 24 heures (confirmation) et 1 heure (mot de passe)",
   },
   {
     purpose: "Mesure d'audience",
@@ -45,17 +46,30 @@ const PROCESSINGS = [
     purpose: "Réponse aux demandes d'exercice des droits",
     data: "Adresse e-mail, type de demande, message",
     legalBasis: "Obligation légale (RGPD)",
-    retention: "Le temps du traitement de la demande et de la preuve de la réponse",
+    retention:
+      "Le temps du traitement de la demande et de la preuve de la réponse",
   },
 ];
 
 const PROCESSORS = [
   { name: "Vercel", role: "hébergement du site", location: "États-Unis" },
   { name: "Render", role: "hébergement de l'API", location: "États-Unis" },
-  { name: "MongoDB Atlas", role: "base de données", location: "selon la région du cluster" },
-  { name: "Stripe", role: "paiement en ligne", location: "Irlande / États-Unis" },
+  {
+    name: "MongoDB Atlas",
+    role: "base de données",
+    location: "selon la région du cluster",
+  },
+  {
+    name: "Stripe",
+    role: "paiement en ligne",
+    location: "Irlande / États-Unis",
+  },
   { name: "Resend", role: "envoi des e-mails", location: "États-Unis" },
-  { name: "Google Analytics", role: "mesure d'audience, avec ton accord", location: "États-Unis" },
+  {
+    name: "Google Analytics",
+    role: "mesure d'audience, avec ton accord",
+    location: "États-Unis",
+  },
   {
     name: "API Adresse (data.gouv.fr)",
     role: "suggestions lors de la saisie de l'adresse",
@@ -65,27 +79,31 @@ const PROCESSORS = [
 
 function PrivacyPolicy() {
   return (
-    <div className="container legal-page my-4">
+    <div className="legal-page mx-auto max-w-4xl px-6 pt-10">
       <SeoHead
         title="Politique de confidentialité"
         description="Comment Antunes collecte, utilise et protège tes données personnelles, et comment exercer tes droits."
       />
 
-      <h1 className="h2 mb-2">Politique de confidentialité</h1>
-      <p className="text-muted">Dernière mise à jour : 23 novembre 2026</p>
+      <h1 className="mb-3 text-5xl md:text-6xl">
+        Politique de confidentialité
+      </h1>
+      <p className="font-semibold text-ink-soft">
+        Dernière mise à jour : 23 novembre 2026
+      </p>
 
       <h2>Responsable du traitement</h2>
       <p>
         Le responsable du traitement des données collectées sur Antunes est{" "}
         {PUBLISHER.name}, éditeur du site (voir les{" "}
-        <Link to="/mentions-legales">mentions légales</Link>). Antunes ne
-        vend ni ne loue tes données à des tiers.
+        <Link to="/mentions-legales">mentions légales</Link>). Antunes ne vend
+        ni ne loue tes données à des tiers.
       </p>
 
       <h2>Données collectées et finalités</h2>
-      <div className="table-responsive">
-        <table className="table table-sm align-top">
-          <caption className="visually-hidden">
+      <div className="overflow-x-auto">
+        <table className="legal-table">
+          <caption className="sr-only">
             Traitements de données personnelles réalisés par Antunes
           </caption>
           <thead>
@@ -124,8 +142,8 @@ function PrivacyPolicy() {
       </ul>
       <p>
         Les transferts vers les États-Unis sont encadrés par le cadre de
-        protection des données UE–États-Unis (Data Privacy Framework) ou par
-        les clauses contractuelles types de la Commission européenne.
+        protection des données UE–États-Unis (Data Privacy Framework) ou par les
+        clauses contractuelles types de la Commission européenne.
       </p>
 
       <h2>Cookies et stockage local</h2>
@@ -134,10 +152,6 @@ function PrivacyPolicy() {
         <li>
           <code>antunes-auth</code> : maintien de ta connexion (stockage local
           du navigateur).
-        </li>
-        <li>
-          <code>antunes-theme</code> : ta préférence d&apos;affichage (thème
-          clair ou sombre).
         </li>
         <li>
           <code>antunes-cookie-consent</code> : mémorisation de ton choix
@@ -159,8 +173,8 @@ function PrivacyPolicy() {
 
       <h2>Sécurité</h2>
       <p>
-        Les échanges sont chiffrés (HTTPS), les mots de passe sont stockés
-        sous forme de hash (bcrypt) et ne sont jamais lisibles, y compris par
+        Les échanges sont chiffrés (HTTPS), les mots de passe sont stockés sous
+        forme de hash (bcrypt) et ne sont jamais lisibles, y compris par
         l&apos;éditeur. Les liens envoyés par e-mail sont à usage unique et
         expirent rapidement.
       </p>
@@ -184,9 +198,13 @@ function PrivacyPolicy() {
         </li>
       </ul>
       <p>
-        Si tu estimes que tes droits ne sont pas respectés, tu peux adresser
-        une réclamation à la CNIL sur{" "}
-        <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noreferrer">
+        Si tu estimes que tes droits ne sont pas respectés, tu peux adresser une
+        réclamation à la CNIL sur{" "}
+        <a
+          href="https://www.cnil.fr/fr/plaintes"
+          target="_blank"
+          rel="noreferrer"
+        >
           cnil.fr/fr/plaintes
         </a>
         .

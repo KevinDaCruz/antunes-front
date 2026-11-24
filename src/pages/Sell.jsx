@@ -6,6 +6,10 @@ import { HEADER_CATEGORIES } from "../constants/navigation";
 import { ApiError } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import EmailVerificationNotice from "../components/EmailVerificationNotice";
+import ProductVisual from "../components/ProductVisual";
+import ConditionBadge from "../components/ConditionBadge";
+import { formatPrice } from "../utils/formatPrice";
+import { computeBuyerTotal } from "../utils/serviceFee";
 
 const CONDITIONS = ["Neuf", "Reconditionné", "Bon état", "Occasion"];
 
@@ -35,8 +39,7 @@ function Sell() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const { name, brand, category, condition, price, description } =
-      formValues;
+    const { name, brand, category, condition, price, description } = formValues;
 
     if (!name || !brand || !category || !condition || !price) {
       setErrorMessage("Merci de remplir tous les champs obligatoires.");
@@ -70,189 +73,200 @@ function Sell() {
     }
   }
 
+  const price = Number(formValues.price);
+  const previewProduct = {
+    name: formValues.name || "Nom de ton appareil",
+    brand: formValues.brand || "Marque",
+    category: formValues.category || "Accessoires",
+    condition: formValues.condition || "Bon état",
+    price: price > 0 ? price : 0,
+  };
+
   return (
-    <div className="container sell-page my-4">
+    <div className="mx-auto max-w-7xl px-6 pt-10">
       <SeoHead
         title="Vendre un article"
         description="Publie gratuitement une annonce sur Antunes et vends ta tech d'occasion (smartphones, PC, consoles, composants) en quelques minutes."
       />
 
-      <section className="sell-hero mb-4">
-        <div>
-          <p className="sell-kicker mb-2">Publication guidée</p>
-          <h1 className="h2 mb-2">Vendre un article</h1>
-          <p className="text-muted mb-0">
-            Crée une annonce claire, attractive et visible en quelques minutes.
-          </p>
-        </div>
-        <div className="sell-hero-chips">
-          <span className="sell-chip">Mise en ligne rapide</span>
-          <span className="sell-chip">Conseils intégrés</span>
-          <span className="sell-chip">Visibilité optimisée</span>
-        </div>
-      </section>
+      <p className="eyebrow">Gratuit · 2 minutes</p>
+      <h1 className="mt-4 text-5xl md:text-6xl">Déposer une annonce</h1>
 
-      <div className="row g-4">
-        <div className="col-12 col-lg-8">
-          <EmailVerificationNotice reason="Cette étape est nécessaire pour publier une annonce." />
+      <div className="mt-8">
+        <EmailVerificationNotice reason="Cette étape est nécessaire pour publier une annonce." />
+      </div>
 
-          <form className="sell-form-card" onSubmit={handleSubmit}>
-            {errorMessage ? (
-              <div className="alert alert-danger" role="alert">
-                {errorMessage}
-              </div>
-            ) : null}
-
-            <div className="mb-3">
-              <label htmlFor="productImage" className="form-label">
-                Télécharger une photo
-              </label>
-              <input className="form-control" type="file" id="productImage" />
-              <div className="form-text">
-                Pour l'instant, une image de démonstration est générée
-                automatiquement à partir du nom du produit.
-              </div>
+      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
+        <form className="card space-y-6 p-8" onSubmit={handleSubmit}>
+          {errorMessage ? (
+            <div className="alert-error" role="alert">
+              {errorMessage}
             </div>
+          ) : null}
 
-            <div className="mb-3">
-              <label htmlFor="productName" className="form-label">
-                Nom du produit
+          <div>
+            <label htmlFor="productName" className="label">
+              Nom du produit
+            </label>
+            <input
+              type="text"
+              className="field"
+              id="productName"
+              placeholder="Ex : iPhone 15 Pro 256 Go"
+              value={formValues.name}
+              onChange={(event) =>
+                handleFieldChange("name", event.target.value)
+              }
+            />
+            <p className="mt-1.5 text-xs font-semibold text-ink-muted">
+              Indique le modèle exact : c&apos;est ce que recherchent les
+              acheteurs.
+            </p>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="productBrand" className="label">
+                Marque
               </label>
               <input
                 type="text"
-                className="form-control"
-                id="productName"
-                placeholder="Ex: iPhone 15 Pro"
-                value={formValues.name}
+                className="field"
+                id="productBrand"
+                placeholder="Ex : Apple"
+                value={formValues.brand}
                 onChange={(event) =>
-                  handleFieldChange("name", event.target.value)
+                  handleFieldChange("brand", event.target.value)
                 }
               />
             </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label htmlFor="productBrand" className="form-label">
-                  Marque
-                </label>
+            <div>
+              <label htmlFor="productPrice" className="label">
+                Prix
+              </label>
+              <div className="relative">
                 <input
-                  type="text"
-                  className="form-control"
-                  id="productBrand"
-                  placeholder="Ex: Apple"
-                  value={formValues.brand}
+                  type="number"
+                  className="field !pr-10"
+                  id="productPrice"
+                  placeholder="150"
+                  min="0"
+                  value={formValues.price}
                   onChange={(event) =>
-                    handleFieldChange("brand", event.target.value)
+                    handleFieldChange("price", event.target.value)
                   }
                 />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="productCondition" className="form-label">
-                  État
-                </label>
-                <select
-                  id="productCondition"
-                  className="form-select"
-                  value={formValues.condition}
-                  onChange={(event) =>
-                    handleFieldChange("condition", event.target.value)
-                  }
+                <span
+                  className="absolute top-1/2 right-4 -translate-y-1/2 font-black text-ink"
+                  aria-hidden="true"
                 >
-                  <option value="" disabled>
-                    Choisir...
-                  </option>
-                  {CONDITIONS.map((conditionOption) => (
-                    <option key={conditionOption} value={conditionOption}>
-                      {conditionOption}
-                    </option>
-                  ))}
-                </select>
+                  €
+                </span>
               </div>
             </div>
-
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <label htmlFor="productCategory" className="form-label">
-                  Catégorie
-                </label>
-                <select
-                  id="productCategory"
-                  className="form-select"
-                  value={formValues.category}
-                  onChange={(event) =>
-                    handleFieldChange("category", event.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    Choisir...
-                  </option>
-                  {HEADER_CATEGORIES.map((categoryOption) => (
-                    <option key={categoryOption} value={categoryOption}>
-                      {categoryOption}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="col-md-6">
-                <label htmlFor="productPrice" className="form-label">
-                  Prix
-                </label>
-                <div className="input-group">
-                  <input
-                    type="number"
-                    className="form-control"
-                    id="productPrice"
-                    placeholder="150"
-                    min="0"
-                    value={formValues.price}
-                    onChange={(event) =>
-                      handleFieldChange("price", event.target.value)
-                    }
-                  />
-                  <span className="input-group-text">€</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="productDescription" className="form-label">
-                Description
+            <div>
+              <label htmlFor="productCategory" className="label">
+                Catégorie
               </label>
-              <textarea
-                className="form-control"
-                id="productDescription"
-                rows="4"
-                placeholder="Décrivez votre produit..."
-                value={formValues.description}
+              <select
+                className="field"
+                id="productCategory"
+                value={formValues.category}
                 onChange={(event) =>
-                  handleFieldChange("description", event.target.value)
+                  handleFieldChange("category", event.target.value)
                 }
-              ></textarea>
-            </div>
-
-            <div className="d-grid mt-4">
-              <button
-                type="submit"
-                className="btn btn-primary btn-lg fx-neon"
-                disabled={isSubmitting || !canPublish}
               >
-                {isSubmitting ? "Publication..." : "Publier l'annonce"}
-              </button>
+                <option value="" disabled>
+                  Choisir une catégorie
+                </option>
+                {HEADER_CATEGORIES.map((categoryOption) => (
+                  <option key={categoryOption} value={categoryOption}>
+                    {categoryOption}
+                  </option>
+                ))}
+              </select>
             </div>
-          </form>
-        </div>
-
-        <aside className="col-12 col-lg-4">
-          <div className="sell-tips-card h-100">
-            <h2 className="h5 mb-3">Conseils pour vendre plus vite</h2>
-            <ul className="sell-tips-list mb-0">
-              <li>Ajoute 3 photos nettes minimum.</li>
-              <li>Donne un titre précis avec modèle complet.</li>
-              <li>Indique l’état réel du produit sans ambiguïté.</li>
-              <li>Propose un prix cohérent avec le marché.</li>
-            </ul>
+            <div>
+              <label htmlFor="productCondition" className="label">
+                État
+              </label>
+              <select
+                className="field"
+                id="productCondition"
+                value={formValues.condition}
+                onChange={(event) =>
+                  handleFieldChange("condition", event.target.value)
+                }
+              >
+                <option value="" disabled>
+                  Choisir un état
+                </option>
+                {CONDITIONS.map((conditionOption) => (
+                  <option key={conditionOption} value={conditionOption}>
+                    {conditionOption}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          <div>
+            <label htmlFor="productDescription" className="label">
+              Description
+            </label>
+            <textarea
+              className="field"
+              id="productDescription"
+              rows="4"
+              placeholder="État de la batterie, accessoires fournis, défauts éventuels…"
+              value={formValues.description}
+              onChange={(event) =>
+                handleFieldChange("description", event.target.value)
+              }
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t-3 border-ink pt-6">
+            <p className="max-w-sm text-sm font-semibold text-ink-muted">
+              {price > 0
+                ? `L'acheteur paiera ${formatPrice(computeBuyerTotal(price))} : ton prix + les frais de protection. Tu reçois ${formatPrice(price)}.`
+                : "Publier une annonce est gratuit : les frais de protection sont payés par l'acheteur."}
+            </p>
+            <button
+              type="submit"
+              className="btn-pink !px-8 !py-4 text-base"
+              disabled={isSubmitting || !canPublish}
+            >
+              {isSubmitting ? "Publication..." : "Publier l'annonce"}
+            </button>
+          </div>
+        </form>
+
+        <aside className="h-fit lg:sticky lg:top-44" aria-label="Aperçu">
+          <p className="label">Aperçu en direct</p>
+          <div className="overflow-hidden rounded-(--radius-card) bg-white text-ink brutal">
+            <ProductVisual
+              product={previewProduct}
+              className="aspect-[4/3.4] border-b-3 border-ink"
+            >
+              <div className="absolute bottom-3 left-3">
+                <ConditionBadge condition={previewProduct.condition} />
+              </div>
+            </ProductVisual>
+            <div className="p-4">
+              <p className="text-xs font-bold text-ink-muted">
+                {previewProduct.brand} · {previewProduct.category}
+              </p>
+              <p className="text-base font-extrabold">{previewProduct.name}</p>
+              <p className="mt-3 text-2xl font-black tracking-tight">
+                {formatPrice(previewProduct.price)}
+              </p>
+            </div>
+          </div>
+          <p className="alert-info mt-4">
+            Les photos réelles arrivent bientôt : en attendant, une illustration
+            de la catégorie est affichée.
+          </p>
         </aside>
       </div>
     </div>

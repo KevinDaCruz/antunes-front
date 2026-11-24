@@ -1,4 +1,27 @@
 import { Link } from "react-router-dom";
+import { LockKeyhole } from "lucide-react";
+import Logo from "./Logo";
+
+const COLUMNS = [
+  {
+    title: "Acheter",
+    links: [
+      { to: "/catalog", label: "Catalogue" },
+      { to: "/catalog?category=Smartphones", label: "Smartphones" },
+      { to: "/catalog?category=PC%20portables", label: "PC portables" },
+      { to: "/favorites", label: "Favoris" },
+    ],
+  },
+  {
+    title: "Vendre",
+    links: [
+      { to: "/sell", label: "Déposer une annonce" },
+      { to: "/account", label: "Mon compte" },
+      { to: "/messages", label: "Messagerie" },
+      { to: "/signup", label: "Inscription" },
+    ],
+  },
+];
 
 const LEGAL_LINKS = [
   { to: "/mentions-legales", label: "Mentions légales" },
@@ -6,101 +29,79 @@ const LEGAL_LINKS = [
   { to: "/mes-donnees", label: "Mes données personnelles" },
 ];
 
+const LINK = "font-semibold hover:text-pink hover:underline";
+
 // onManageCookies n'est fourni que si un outil de mesure d'audience est
 // actif : c'est lui qui rouvre le bandeau de consentement.
 function Footer({ onManageCookies }) {
   const year = new Date().getFullYear();
 
-  const quickLinks = [
-    { to: "/catalog", label: "Catalogue" },
-    { to: "/favorites", label: "Favoris" },
-    { to: "/messages", label: "Messagerie" },
-    { to: "/sell", label: "Vendre" },
-  ];
-
-  const utilityLinks = [
-    { to: "/login", label: "Connexion" },
-    { to: "/signup", label: "Inscription" },
-    { to: "/account", label: "Mon compte" },
-  ];
-
   return (
-    <footer className="site-footer mt-auto">
-      <div className="container site-footer-main">
-        <section className="footer-brand-block">
-          <p className="footer-kicker mb-2">Antunes Marketplace</p>
-          <h2 className="h5 mb-2">
-            La plateforme premium pour la tech d'occasion
-          </h2>
-          <p className="footer-description mb-0">
-            Achète, revends et discute en confiance sur une expérience fluide,
-            moderne et pensée pour la conversion.
+    <footer className="mt-24 border-t-3 border-ink bg-ink text-cream">
+      <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div>
+          <Logo onDark />
+          <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-cream/80">
+            La place de marché de la tech d&apos;occasion entre particuliers.
+            Des prix transparents, un paiement sécurisé, et des appareils qui
+            servent plus longtemps.
           </p>
-        </section>
+        </div>
 
-        <nav className="footer-links-block" aria-label="Liens rapides">
-          <p className="footer-links-title">Explorer</p>
-          <ul className="footer-links-list">
-            {quickLinks.map((link) => (
-              <li key={link.to}>
-                <Link to={link.to} className="footer-link-pill">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav className="footer-links-block" aria-label="Liens utilitaires">
-          <p className="footer-links-title">Compte</p>
-          <ul className="footer-links-list">
-            {utilityLinks.map((link) => (
-              <li key={link.to}>
-                <Link to={link.to} className="footer-link-pill">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <section className="footer-cta-block">
-          <p className="footer-links-title">Prêt à vendre ?</p>
-          <p className="footer-description mb-3">
-            Publie une annonce en quelques minutes et touche les bons acheteurs.
-          </p>
-          <Link to="/sell" className="btn btn-primary fx-neon footer-cta-btn">
-            Déposer une annonce
-          </Link>
-        </section>
-      </div>
-
-      <div className="site-footer-bottom">
-        <div className="container site-footer-bottom-content">
-          <p className="mb-0">© {year} Antunes. Tous droits réservés.</p>
-
-          <nav aria-label="Informations légales">
-            <ul className="footer-legal-list">
-              {LEGAL_LINKS.map((link) => (
+        {COLUMNS.map((column) => (
+          <nav key={column.title} aria-label={column.title}>
+            <p className="text-sm font-black tracking-wide text-yellow uppercase">
+              {column.title}
+            </p>
+            <ul className="mt-4 space-y-2.5 text-[15px]">
+              {column.links.map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to}>{link.label}</Link>
+                  <Link to={link.to} className={LINK}>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
-              {onManageCookies ? (
-                <li>
-                  <button
-                    type="button"
-                    className="footer-legal-button"
-                    onClick={onManageCookies}
-                  >
-                    Gérer les cookies
-                  </button>
-                </li>
-              ) : null}
             </ul>
           </nav>
+        ))}
 
-          <p className="mb-0">Projet de mémoire — Kevin Da Cruz</p>
+        <nav aria-label="Informations légales">
+          <p className="text-sm font-black tracking-wide text-yellow uppercase">
+            Aide et légal
+          </p>
+          <ul className="mt-4 space-y-2.5 text-[15px]">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className={LINK}>
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            {onManageCookies ? (
+              <li>
+                <button
+                  type="button"
+                  className={`${LINK} text-left`}
+                  onClick={onManageCookies}
+                >
+                  Gérer les cookies
+                </button>
+              </li>
+            ) : null}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="border-t-2 border-cream/20">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-6 text-sm text-cream/70 sm:flex-row sm:justify-between">
+          <p>
+            © {year} Antunes. Projet de mémoire de Kevin Da Cruz, titre RNCP
+            Développeur Full Stack.
+          </p>
+          <p className="flex items-center gap-1.5">
+            <LockKeyhole className="size-4" aria-hidden="true" />
+            Paiements traités par Stripe, aucune donnée bancaire stockée.
+          </p>
         </div>
       </div>
     </footer>

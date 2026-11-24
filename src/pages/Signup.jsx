@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
+import { BadgeEuro, ShieldCheck, Store } from "lucide-react";
+import AuthLayout from "../components/AuthLayout";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
 import PasswordInput from "../components/PasswordInput";
@@ -17,21 +18,12 @@ const INITIAL_FORM_STATE = {
 };
 
 function Signup() {
-  const { elementRef, spotlightHandlers } = useCursorSpotlight({
-    resetToCenterOnLeave: false,
-  });
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState(INITIAL_FORM_STATE);
   const [acceptsTerms, setAcceptsTerms] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const sellerPerks = [
-    "Badge vendeur vérifié",
-    "Mise en avant des annonces",
-    "Messagerie centralisée",
-  ];
 
   function handleFieldChange(field, value) {
     setFormValues((currentValues) => ({ ...currentValues, [field]: value }));
@@ -65,192 +57,170 @@ function Signup() {
   }
 
   return (
-    <section className="auth-page">
+    <>
       <SeoHead
         title="Inscription"
         description="Crée ton compte vendeur Antunes et publie tes premières annonces de tech d'occasion en quelques minutes."
       />
+      <AuthLayout
+        panelTitle="Rejoins la communauté."
+        panelPoints={[
+          {
+            icon: <Store className="size-5" aria-hidden="true" />,
+            text: "Publie tes annonces gratuitement",
+          },
+          {
+            icon: <BadgeEuro className="size-5" aria-hidden="true" />,
+            text: "Achète au prix total affiché",
+          },
+          {
+            icon: <ShieldCheck className="size-5" aria-hidden="true" />,
+            text: "Tes données restent les tiennes",
+          },
+        ]}
+      >
+        <h1 className="text-5xl">Créer un compte</h1>
+        <p className="mt-2 font-medium text-ink-soft">
+          Déjà inscrit ?{" "}
+          <Link to="/login" className="link">
+            Connecte-toi
+          </Link>
+        </p>
 
-      <div className="container auth-container">
-        <div className="auth-shell">
-          <div className="auth-shell-side">
-            <p className="auth-chip">Inscription rapide</p>
-            <h1 className="auth-title">Crée ton espace vendeur tech.</h1>
-            <p className="auth-description">
-              Publie tes produits, construis ta réputation et échange avec des
-              acheteurs qualifiés.
-            </p>
-            <ul className="auth-benefits">
-              <li>Mise en ligne simple et guidée</li>
-              <li>Profil vendeur clair et rassurant</li>
-              <li>Gestion centralisée de tes annonces</li>
-            </ul>
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          {errorMessage ? (
+            <div className="alert-error" role="alert">
+              {errorMessage}
+            </div>
+          ) : null}
 
-            <div className="auth-side-perks">
-              {sellerPerks.map((perk) => (
-                <span key={perk} className="auth-perk-pill">
-                  {perk}
-                </span>
-              ))}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="firstName" className="label">
+                Prénom
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                className="field"
+                autoComplete="given-name"
+                value={formValues.firstName}
+                onChange={(event) =>
+                  handleFieldChange("firstName", event.target.value)
+                }
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="label">
+                Nom
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                className="field"
+                autoComplete="family-name"
+                value={formValues.lastName}
+                onChange={(event) =>
+                  handleFieldChange("lastName", event.target.value)
+                }
+                required
+              />
             </div>
           </div>
-
-          <div ref={elementRef} {...spotlightHandlers} className="auth-card">
-            <h2 className="auth-form-title">Inscription</h2>
-
-            <form className="auth-form" onSubmit={handleSubmit}>
-              {errorMessage ? (
-                <div className="alert alert-danger" role="alert">
-                  {errorMessage}
-                </div>
-              ) : null}
-
-              <div className="row g-2 auth-form-row mb-2">
-                <div className="col-12 col-md-6">
-                  <label htmlFor="firstName" className="form-label">
-                    Prénom
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="firstName"
-                    placeholder="Votre prénom"
-                    value={formValues.firstName}
-                    onChange={(event) =>
-                      handleFieldChange("firstName", event.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="col-12 col-md-6">
-                  <label htmlFor="lastName" className="form-label">
-                    Nom
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="lastName"
-                    placeholder="Votre nom"
-                    value={formValues.lastName}
-                    onChange={(event) =>
-                      handleFieldChange("lastName", event.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  Pseudo
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  placeholder="Votre pseudo"
-                  value={formValues.username}
-                  onChange={(event) =>
-                    handleFieldChange("username", event.target.value)
-                  }
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Adresse e-mail
-                </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  placeholder="nom@exemple.com"
-                  value={formValues.email}
-                  onChange={(event) =>
-                    handleFieldChange("email", event.target.value)
-                  }
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">
-                  Mot de passe
-                </label>
-                <PasswordInput
-                  id="password"
-                  placeholder="Votre mot de passe"
-                  value={formValues.password}
-                  onChange={(event) =>
-                    handleFieldChange("password", event.target.value)
-                  }
-                  aria-describedby="password-requirements"
-                />
-                <PasswordRequirements
-                  id="password-requirements"
-                  password={formValues.password}
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="confirmPassword" className="form-label">
-                  Confirmer le mot de passe
-                </label>
-                <PasswordInput
-                  id="confirmPassword"
-                  placeholder="Confirmez votre mot de passe"
-                  value={formValues.confirmPassword}
-                  onChange={(event) =>
-                    handleFieldChange("confirmPassword", event.target.value)
-                  }
-                />
-              </div>
-
-              <div className="form-check mb-3 auth-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="terms"
-                  checked={acceptsTerms}
-                  onChange={(event) => setAcceptsTerms(event.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="terms">
-                  J&apos;accepte les conditions d&apos;utilisation et la{" "}
-                  <Link to="/confidentialite" target="_blank">
-                    politique de confidentialité
-                  </Link>
-                  .
-                </label>
-              </div>
-
-              <div className="d-grid">
-                <button
-                  type="submit"
-                  className="btn btn-primary auth-submit-btn"
-                >
-                  Créer un compte
-                </button>
-              </div>
-            </form>
-
-            <div className="auth-divider" role="presentation">
-              <span>Démarrage rapide</span>
-            </div>
-
-            <div
-              className="auth-trust-row"
-              role="group"
-              aria-label="Bénéfices inscription"
-            >
-              <span className="auth-trust-pill">Profil en 2 min</span>
-              <span className="auth-trust-pill">Sans frais cachés</span>
-            </div>
-
-            <p className="text-center mt-3 auth-switch-text">
-              Déjà un compte ? <Link to="/login">Connectez-vous</Link>
-            </p>
+          <div>
+            <label htmlFor="username" className="label">
+              Pseudo
+            </label>
+            <input
+              id="username"
+              type="text"
+              className="field"
+              autoComplete="username"
+              value={formValues.username}
+              onChange={(event) =>
+                handleFieldChange("username", event.target.value)
+              }
+              required
+            />
           </div>
-        </div>
-      </div>
-    </section>
+          <div>
+            <label htmlFor="email" className="label">
+              Adresse e-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="field"
+              autoComplete="email"
+              value={formValues.email}
+              onChange={(event) =>
+                handleFieldChange("email", event.target.value)
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="label">
+              Mot de passe
+            </label>
+            <PasswordInput
+              id="password"
+              autoComplete="new-password"
+              value={formValues.password}
+              onChange={(event) =>
+                handleFieldChange("password", event.target.value)
+              }
+              aria-describedby="password-requirements"
+              required
+            />
+            <PasswordRequirements
+              id="password-requirements"
+              password={formValues.password}
+            />
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="label">
+              Confirmer le mot de passe
+            </label>
+            <PasswordInput
+              id="confirmPassword"
+              autoComplete="new-password"
+              value={formValues.confirmPassword}
+              onChange={(event) =>
+                handleFieldChange("confirmPassword", event.target.value)
+              }
+              required
+            />
+          </div>
+
+          <div className="flex items-start gap-3">
+            <input
+              id="terms"
+              type="checkbox"
+              className="mt-0.5 size-6 shrink-0 cursor-pointer appearance-none rounded-md border-2 border-ink bg-white bg-center bg-no-repeat checked:bg-pink checked:bg-[url('/icons/check.svg')]"
+              checked={acceptsTerms}
+              onChange={(event) => setAcceptsTerms(event.target.checked)}
+            />
+            <label htmlFor="terms" className="text-sm font-semibold">
+              J&apos;accepte les conditions d&apos;utilisation et la{" "}
+              <Link to="/confidentialite" target="_blank" className="link">
+                politique de confidentialité
+              </Link>
+              .
+            </label>
+          </div>
+
+          <button type="submit" className="btn-pink w-full !py-4 text-base">
+            Créer un compte
+          </button>
+          <p className="text-center text-xs font-semibold text-ink-muted">
+            Un e-mail de confirmation te sera envoyé pour valider ton adresse.
+          </p>
+        </form>
+      </AuthLayout>
+    </>
   );
 }
 

@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCursorSpotlight } from "../hooks/useCursorSpotlight";
+import { Heart, LockKeyhole, MessageCircle, Package } from "lucide-react";
+import AuthLayout from "../components/AuthLayout";
 import { useAuth } from "../hooks/useAuth";
 import SeoHead from "../components/SeoHead";
 import PasswordInput from "../components/PasswordInput";
 
 function Login() {
-  const { elementRef, spotlightHandlers } = useCursorSpotlight({
-    resetToCenterOnLeave: false,
-  });
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,12 +15,6 @@ function Login() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const successMessage = location.state?.message;
-
-  const authStats = [
-    { value: "12k+", label: "Membres actifs" },
-    { value: "4.9/5", label: "Satisfaction" },
-    { value: "24/7", label: "Support" },
-  ];
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -39,118 +31,92 @@ function Login() {
   }
 
   return (
-    <section className="auth-page">
+    <>
       <SeoHead
         title="Connexion"
         description="Connecte-toi à ton compte Antunes pour retrouver tes annonces, tes favoris et tes conversations."
       />
+      <AuthLayout
+        panelTitle="Content de te revoir."
+        panelPoints={[
+          {
+            icon: <Heart className="size-5" aria-hidden="true" />,
+            text: "Retrouve tes favoris",
+          },
+          {
+            icon: <MessageCircle className="size-5" aria-hidden="true" />,
+            text: "Réponds à tes messages",
+          },
+          {
+            icon: <Package className="size-5" aria-hidden="true" />,
+            text: "Suis tes ventes et tes achats",
+          },
+        ]}
+      >
+        <p className="eyebrow">
+          <LockKeyhole className="size-3.5" aria-hidden="true" />
+          Connexion sécurisée
+        </p>
+        <h1 className="mt-4 text-5xl">Connexion</h1>
+        <p className="mt-2 font-medium text-ink-soft">
+          Pas encore de compte ?{" "}
+          <Link to="/signup" className="link">
+            Inscris-toi gratuitement
+          </Link>
+        </p>
 
-      <div className="container auth-container">
-        <div className="auth-shell">
-          <div className="auth-shell-side">
-            <p className="auth-chip">Connexion sécurisée</p>
-            <h1 className="auth-title">Bon retour sur Antunes.</h1>
-            <p className="auth-description">
-              Retrouve tes annonces, tes favoris et tes conversations en un
-              instant.
-            </p>
-            <ul className="auth-benefits">
-              <li>Suivi des annonces en temps réel</li>
-              <li>Messagerie rapide acheteur/vendeur</li>
-              <li>Expérience optimisée mobile & desktop</li>
-            </ul>
-
-            <div className="auth-side-stats">
-              {authStats.map((stat) => (
-                <article key={stat.label} className="auth-side-stat-card">
-                  <p className="auth-side-stat-value mb-0">{stat.value}</p>
-                  <p className="auth-side-stat-label mb-0">{stat.label}</p>
-                </article>
-              ))}
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          {successMessage ? (
+            <div className="alert-success" role="status">
+              {successMessage}
             </div>
+          ) : null}
+          {errorMessage ? (
+            <div className="alert-error" role="alert">
+              {errorMessage}
+            </div>
+          ) : null}
+
+          <div>
+            <label htmlFor="email" className="label">
+              Adresse e-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="field"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
           </div>
-
-          <div ref={elementRef} {...spotlightHandlers} className="auth-card">
-            <h2 className="auth-form-title">Connexion</h2>
-
-            <form className="auth-form" onSubmit={handleSubmit}>
-              {successMessage ? (
-                <div className="alert alert-success" role="status">
-                  {successMessage}
-                </div>
-              ) : null}
-              {errorMessage ? (
-                <div className="alert alert-danger" role="alert">
-                  {errorMessage}
-                </div>
-              ) : null}
-
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Adresse e-mail
-                </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  placeholder="nom@exemple.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">
-                  Mot de passe
-                </label>
-                <PasswordInput
-                  id="password"
-                  placeholder="Votre mot de passe"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-              </div>
-
-              <div className="auth-form-meta mb-3">
-                <Link to="/forgot-password" className="auth-meta-link">
-                  Mot de passe oublié ?
-                </Link>
-                <span className="auth-meta-dot" aria-hidden="true">
-                  •
-                </span>
-                <span className="auth-meta-note">Connexion chiffrée</span>
-              </div>
-
-              <div className="d-grid">
-                <button
-                  type="submit"
-                  className="btn btn-primary auth-submit-btn"
-                >
-                  Se connecter
-                </button>
-              </div>
-            </form>
-
-            <div className="auth-divider" role="presentation">
-              <span>Accès sécurisé</span>
-            </div>
-
-            <div
-              className="auth-trust-row"
-              role="group"
-              aria-label="Garanties de sécurité"
+          <div>
+            <label htmlFor="password" className="label">
+              Mot de passe
+            </label>
+            <PasswordInput
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </div>
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-sm font-extrabold underline"
             >
-              <span className="auth-trust-pill">Données protégées</span>
-              <span className="auth-trust-pill">Session sécurisée</span>
-            </div>
-
-            <p className="text-center mt-3 auth-switch-text">
-              Pas encore de compte ? <Link to="/signup">Inscrivez-vous</Link>
-            </p>
+              Mot de passe oublié ?
+            </Link>
           </div>
-        </div>
-      </div>
-    </section>
+          <button type="submit" className="btn-ink w-full !py-4 text-base">
+            Se connecter
+          </button>
+        </form>
+      </AuthLayout>
+    </>
   );
 }
 

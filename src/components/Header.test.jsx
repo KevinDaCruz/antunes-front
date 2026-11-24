@@ -9,7 +9,9 @@ import { DEMO_USER, FAKE_TOKEN } from "../test/fixtures";
 
 function LocationDisplay() {
   const location = useLocation();
-  return <div data-testid="location">{location.pathname + location.search}</div>;
+  return (
+    <div data-testid="location">{location.pathname + location.search}</div>
+  );
 }
 
 function renderHeader() {
@@ -42,11 +44,13 @@ describe("Header", () => {
     globalThis.fetch = createApiMock([meRoute]);
   });
 
-  it("shows Connexion/Inscription when logged out", () => {
+  it("shows the login and sell links when logged out", () => {
     renderHeader();
 
-    expect(screen.getByRole("link", { name: "Connexion" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Inscription" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Se connecter" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Vendre" })).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Mon compte" }),
     ).not.toBeInTheDocument();
@@ -70,7 +74,7 @@ describe("Header", () => {
     renderHeader();
 
     await user.type(
-      screen.getByPlaceholderText("Rechercher un produit..."),
+      screen.getByRole("searchbox", { name: "Rechercher une annonce" }),
       "iphone",
     );
     await user.click(screen.getByRole("button", { name: "Rechercher" }));
@@ -84,10 +88,7 @@ describe("Header", () => {
     renderHeader();
 
     const consolesLink = screen.getByRole("link", { name: "Consoles" });
-    expect(consolesLink).toHaveAttribute(
-      "href",
-      "/catalog?category=Consoles",
-    );
+    expect(consolesLink).toHaveAttribute("href", "/catalog?category=Consoles");
   });
 
   it("logs the user out and redirects home", async () => {

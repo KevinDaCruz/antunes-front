@@ -6,6 +6,9 @@ import { formatPrice } from "../utils/formatPrice";
 import { buildProductStructuredData } from "../utils/structuredData";
 import SeoHead from "../components/SeoHead";
 import PageLoader from "../components/PageLoader";
+import ProductVisual from "../components/ProductVisual";
+import ConditionBadge from "../components/ConditionBadge";
+import { BadgeEuro, LockKeyhole, MessageCircle } from "lucide-react";
 
 const DEFAULT_MESSAGE = "Bonjour, cet article est-il toujours disponible ?";
 
@@ -57,12 +60,19 @@ function ProductDetails() {
 
   if (!product) {
     return (
-      <div className="text-center mt-5">
-        <h2 className="mb-4">
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
+        <img
+          src="/illustrations/manettes.svg"
+          alt=""
+          width="128"
+          height="128"
+          className="mx-auto size-32 rotate-6"
+        />
+        <h1 className="mt-6 text-4xl">
           {loaded.error === "notFound" ? "Produit non trouvé" : loaded.error}
-        </h2>
-        <Link to="/" className="btn btn-primary">
-          Retour à l'accueil
+        </h1>
+        <Link to="/catalog" className="btn-pink mt-8">
+          Voir le catalogue
         </Link>
       </div>
     );
@@ -127,8 +137,13 @@ function ProductDetails() {
     ? new Date(product.seller.createdAt).getFullYear()
     : null;
 
+  const total =
+    product.serviceFee !== undefined
+      ? product.price + product.serviceFee
+      : product.price;
+
   return (
-    <div className="container product-details-page my-4">
+    <div className="mx-auto max-w-7xl px-6 pt-10">
       <SeoHead
         title={product.name}
         description={`${product.name} - ${product.brand}, ${product.condition.toLowerCase()}, à ${product.price}€ sur Antunes.`}
@@ -138,97 +153,127 @@ function ProductDetails() {
         )}
       />
 
-      <section className="product-details-hero mb-4">
+      <nav
+        className="text-sm font-bold text-ink-muted"
+        aria-label="Fil d'Ariane"
+      >
+        <Link to="/" className="hover:underline">
+          Accueil
+        </Link>{" "}
+        /{" "}
+        <Link
+          to={`/catalog?category=${encodeURIComponent(product.category)}`}
+          className="hover:underline"
+        >
+          {product.category}
+        </Link>{" "}
+        / <span className="text-ink">{product.name}</span>
+      </nav>
+
+      <div className="mt-6 grid gap-10 lg:grid-cols-[1.15fr_1fr]">
         <div>
-          <p className="product-details-kicker mb-2">Détail annonce</p>
-          <h1 className="h2 mb-2">{product.name}</h1>
-          <p className="text-muted mb-0">
-            Vérifie toutes les informations avant d&apos;acheter, puis contacte
-            le vendeur en un clic.
-          </p>
-        </div>
-        <div className="product-details-hero-chips">
-          {isSold ? (
-            <span className="product-details-chip is-sold">Vendu</span>
-          ) : null}
-          <span className="product-details-chip">{product.condition}</span>
-          <span className="product-details-chip">{product.brand}</span>
-          <span className="product-details-chip">Livraison possible</span>
-        </div>
-      </section>
+          <ProductVisual
+            product={product}
+            className="aspect-square overflow-hidden rounded-3xl brutal"
+            illustrationClassName="!size-[62%] -rotate-6"
+          >
+            <p className="absolute bottom-5 left-5 rounded-full border-2 border-ink bg-white px-3 py-1 text-xs font-bold text-ink">
+              Illustration · photos du vendeur bientôt disponibles
+            </p>
+          </ProductVisual>
 
-      <div className="row g-4 align-items-start">
-        <div className="col-md-6">
-          <div className="product-details-media-card">
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="img-fluid rounded w-100 product-details-image"
-              width="600"
-              height="600"
-              fetchPriority="high"
-            />
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="product-details-content-card">
-            <h2 className="text-primary fw-bold display-4 my-2">
-              {product.price}€
+          <section
+            className="card mt-8 p-7"
+            aria-labelledby="description-title"
+          >
+            <h2 id="description-title" className="text-2xl">
+              Description
             </h2>
+            <p className="mt-3 text-[15px] leading-relaxed font-medium text-ink-soft">
+              {product.description ??
+                `Il s'agit d'un ${product.name} de marque ${product.brand} en ${product.condition.toLowerCase()}.`}
+            </p>
+            <dl className="mt-5 grid grid-cols-2 gap-3 text-[15px]">
+              {[
+                ["Marque", product.brand],
+                ["État", product.condition],
+                ["Catégorie", product.category],
+                ["Livraison", "Possible"],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-xl border-2 border-ink bg-cream p-3 text-ink"
+                >
+                  <dt className="text-xs font-bold text-ink-muted uppercase">
+                    {label}
+                  </dt>
+                  <dd className="font-extrabold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        </div>
+
+        <div>
+          <div className="card p-7 lg:sticky lg:top-44">
+            <div className="flex flex-wrap gap-2">
+              <ConditionBadge condition={product.condition} />
+              {isSold ? (
+                <span className="rounded-full border-2 border-ink bg-ink px-2.5 py-0.5 text-xs font-extrabold text-cream">
+                  Vendu
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-5 text-sm font-bold text-ink-muted">
+              {product.brand} · {product.category}
+            </p>
+            <h1 className="mt-1 text-4xl leading-tight">{product.name}</h1>
+            <p className="mt-5 text-6xl font-black tracking-tighter">
+              {formatPrice(product.price)}
+            </p>
+
             {product.serviceFee !== undefined ? (
-              <p className="text-muted product-details-fee">
-                + {formatPrice(product.serviceFee)} de frais de service
-                (protection acheteur), soit{" "}
-                <strong>
-                  {formatPrice(product.price + product.serviceFee)}
-                </strong>{" "}
-                au total.
-              </p>
+              <dl className="mt-5 space-y-2 rounded-xl border-2 border-ink bg-cream p-4 text-[15px] font-semibold text-ink">
+                <div className="flex justify-between">
+                  <dt>Prix de l&apos;article</dt>
+                  <dd>{formatPrice(product.price)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>Frais de service (protection acheteur)</dt>
+                  <dd>{formatPrice(product.serviceFee)}</dd>
+                </div>
+                <div className="flex justify-between border-t-2 border-dashed border-ink pt-2 text-lg font-black">
+                  <dt>Total à payer</dt>
+                  <dd>{formatPrice(total)}</dd>
+                </div>
+              </dl>
             ) : null}
 
-            <ul className="list-group list-group-flush mb-4 product-details-list">
-              <li className="list-group-item d-flex justify-content-between px-0">
-                <strong>Marque</strong>
-                <span>{product.brand}</span>
-              </li>
-              <li className="list-group-item d-flex justify-content-between px-0">
-                <strong>État</strong>
-                <span>{product.condition}</span>
-              </li>
-              <li className="list-group-item px-0">
-                <strong>Description</strong>
-                <p className="text-muted mt-2 mb-0">
-                  {product.description ??
-                    `Il s'agit d'un ${product.name} de marque ${product.brand} en ${product.condition.toLowerCase()}.`}
-                </p>
-              </li>
-            </ul>
-
-            {buyError ? (
-              <div className="alert alert-danger" role="alert">
-                {buyError}
-              </div>
-            ) : null}
-            {contactError ? (
-              <div className="alert alert-danger" role="alert">
-                {contactError}
-              </div>
-            ) : null}
-
-            {isSold ? (
-              <div className="alert alert-info" role="status">
-                Cet article a déjà trouvé preneur.
-              </div>
-            ) : null}
+            <div className="mt-5 space-y-3">
+              {buyError ? (
+                <div className="alert-error" role="alert">
+                  {buyError}
+                </div>
+              ) : null}
+              {contactError ? (
+                <div className="alert-error" role="alert">
+                  {contactError}
+                </div>
+              ) : null}
+              {isSold ? (
+                <div className="alert-info" role="status">
+                  Cet article a déjà trouvé preneur.
+                </div>
+              ) : null}
+            </div>
 
             {isOwnProduct ? (
-              <p className="text-muted mb-0">C&apos;est ton annonce.</p>
+              <p className="alert-info mt-5">C&apos;est ton annonce.</p>
             ) : (
-              <div className="d-flex gap-2 flex-wrap">
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
-                  className="btn btn-primary btn-lg fx-neon"
+                  className="btn-pink !py-4 text-base"
                   onClick={handleBuyNow}
                   disabled={isRedirectingToPayment || isSold}
                 >
@@ -238,36 +283,44 @@ function ProductDetails() {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-outline-secondary btn-lg"
+                  className="btn-white !py-4 text-base"
                   onClick={handleContactSeller}
                   disabled={isSold}
                 >
+                  <MessageCircle className="size-5" aria-hidden="true" />
                   Contacter le vendeur
                 </button>
               </div>
             )}
+
+            <ul className="mt-6 space-y-3 text-[15px] font-semibold">
+              <li className="flex gap-3">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-ink bg-mint text-ink">
+                  <LockKeyhole className="size-4" aria-hidden="true" />
+                </span>
+                Paiement sécurisé par Stripe, ta carte n&apos;est jamais
+                transmise au vendeur.
+              </li>
+              <li className="flex gap-3">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full border-2 border-ink bg-sky text-ink">
+                  <BadgeEuro className="size-4" aria-hidden="true" />
+                </span>
+                Le total affiché est exactement le montant débité.
+              </li>
+            </ul>
           </div>
 
-          <div className="card mt-4 product-seller-card">
-            <div className="card-body d-flex align-items-center">
-              <img
-                src="https://placehold.co/50x50.png?text=Avatar"
-                alt="vendeur"
-                className="rounded-circle me-3"
-                width="50"
-                height="50"
-              />
-              <div>
-                <p className="h5 card-title mb-0">
-                  {product.seller?.pseudo ?? "Vendeur_Pseudo"}
-                </p>
-                <p className="card-text text-muted mb-0">
-                  Membre depuis {memberSinceYear ?? "peu de temps"}
-                </p>
-              </div>
-              <div>
-                <span className="badge text-bg-success ms-md-4">Réactif</span>
-              </div>
+          <div className="card mt-6 flex items-center gap-4 p-5">
+            <span className="grid size-14 shrink-0 place-items-center rounded-full border-3 border-ink bg-lilac text-xl font-black text-ink">
+              {(product.seller?.pseudo ?? "?").slice(0, 2).toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-lg font-black">
+                {product.seller?.pseudo ?? "Vendeur"}
+              </p>
+              <p className="text-sm font-semibold text-ink-muted">
+                Membre depuis {memberSinceYear ?? "peu de temps"}
+              </p>
             </div>
           </div>
         </div>

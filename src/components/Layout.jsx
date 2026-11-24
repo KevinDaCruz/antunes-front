@@ -15,20 +15,25 @@ function Layout() {
   );
 
   return (
-    <div className="app-layout">
-      <a href="#main-content" className="skip-to-content-link">
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="btn-yellow sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50"
+      >
         Aller au contenu principal
       </a>
 
       <Header />
 
-      <main id="main-content" className="app-layout-main" tabIndex={-1}>
+      <main id="main-content" className="flex-1 outline-none" tabIndex={-1}>
         <Outlet />
       </main>
 
       <Footer
         onManageCookies={
-          isAnalyticsConfigured() ? () => setIsCookieBannerOpen(true) : undefined
+          isAnalyticsConfigured()
+            ? () => setIsCookieBannerOpen(true)
+            : undefined
         }
       />
       <ScrollRestoration />

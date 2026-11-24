@@ -1,11 +1,11 @@
 function PageLoader() {
   return (
-    <div
-      className="d-flex justify-content-center align-items-center page-loader"
-      role="status"
-    >
-      <div className="spinner-border text-primary" aria-hidden="true"></div>
-      <span className="visually-hidden">Chargement en cours…</span>
+    <div className="grid min-h-screen place-items-center" role="status">
+      <div
+        className="size-12 animate-spin rounded-full border-4 border-ink border-t-pink"
+        aria-hidden="true"
+      ></div>
+      <span className="sr-only">Chargement en cours…</span>
     </div>
   );
 }

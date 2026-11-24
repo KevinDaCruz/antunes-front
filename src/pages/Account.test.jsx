@@ -58,7 +58,13 @@ describe("Account", () => {
 
   it("shows the profile and an empty listings state for a new user", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, myProductsRoute, favoritesRoute, ordersRoute]);
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      myProductsRoute,
+      favoritesRoute,
+      ordersRoute,
+    ]);
 
     renderWithProviders(<Account />);
 
@@ -101,7 +107,13 @@ describe("Account", () => {
 
   it("logs out when clicking Se déconnecter", async () => {
     seedAuthenticatedSession();
-    globalThis.fetch = createApiMock([listProductsRoute, meRoute, myProductsRoute, favoritesRoute, ordersRoute]);
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      myProductsRoute,
+      favoritesRoute,
+      ordersRoute,
+    ]);
     const user = userEvent.setup();
     renderWithProviders(<Account />);
 
@@ -247,8 +259,20 @@ describe("Account", () => {
           status: 200,
           json: {
             products: [
-              { _id: "p1", name: "PS5 Slim", condition: "Bon état", price: 400, status: "sold" },
-              { _id: "p2", name: "Raspberry Pi 4", condition: "Neuf", price: 65, status: "available" },
+              {
+                _id: "p1",
+                name: "PS5 Slim",
+                condition: "Bon état",
+                price: 400,
+                status: "sold",
+              },
+              {
+                _id: "p2",
+                name: "Raspberry Pi 4",
+                condition: "Neuf",
+                price: 65,
+                status: "available",
+              },
             ],
           },
         }),
@@ -316,7 +340,11 @@ describe("Account", () => {
       myProductsRoute,
       favoritesRoute,
       ordersRoute,
-      { method: "GET", pattern: /^\/users\/me\/export$/, handler: exportHandler },
+      {
+        method: "GET",
+        pattern: /^\/users\/me\/export$/,
+        handler: exportHandler,
+      },
     ]);
     URL.createObjectURL = vi.fn(() => "blob:antunes-export");
     URL.revokeObjectURL = vi.fn();
@@ -356,7 +384,9 @@ describe("Account", () => {
       "Azerty-2026!x",
     );
     await user.click(
-      screen.getByRole("button", { name: "Supprimer définitivement mon compte" }),
+      screen.getByRole("button", {
+        name: "Supprimer définitivement mon compte",
+      }),
     );
 
     expect(deleteHandler).toHaveBeenCalledWith(

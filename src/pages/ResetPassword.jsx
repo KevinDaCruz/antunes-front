@@ -21,7 +21,9 @@ function ResetPassword() {
     event.preventDefault();
 
     if (!isPasswordValid(password)) {
-      setErrorMessage("Le mot de passe ne respecte pas toutes les règles indiquées.");
+      setErrorMessage(
+        "Le mot de passe ne respecte pas toutes les règles indiquées.",
+      );
       return;
     }
 
@@ -52,12 +54,15 @@ function ResetPassword() {
 
   if (!token) {
     return (
-      <section className="auth-page">
-        <div className="container auth-container text-center">
+      <section className="mx-auto max-w-lg px-6 pt-16">
+        <div className="card p-8 text-center md:p-10">
           <SeoHead title="Lien invalide" description="Lien invalide." noIndex />
-          <p className="text-muted">
+          <p className="mt-3 font-semibold text-ink-soft">
             Ce lien de réinitialisation est invalide.{" "}
-            <Link to="/forgot-password">Demandes-en un nouveau</Link>.
+            <Link to="/forgot-password" className="link">
+              Demandes-en un nouveau
+            </Link>
+            .
           </p>
         </div>
       </section>
@@ -65,26 +70,26 @@ function ResetPassword() {
   }
 
   return (
-    <section className="auth-page">
+    <section className="mx-auto max-w-lg px-6 pt-16">
       <SeoHead
         title="Nouveau mot de passe"
         description="Choisis un nouveau mot de passe pour ton compte Antunes."
         noIndex
       />
 
-      <div className="container auth-container">
-        <div className="auth-card mx-auto" style={{ maxWidth: "480px" }}>
-          <h2 className="auth-form-title">Choisir un nouveau mot de passe</h2>
+      <div>
+        <div className="card p-8 md:p-10">
+          <h1 className="text-4xl">Choisir un nouveau mot de passe</h1>
 
           {errorMessage ? (
-            <div className="alert alert-danger" role="alert">
+            <div className="alert-error my-4" role="alert">
               {errorMessage}
             </div>
           ) : null}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="password" className="label">
                 Nouveau mot de passe
               </label>
               <PasswordInput
@@ -99,8 +104,8 @@ function ResetPassword() {
               />
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label">
+            <div>
+              <label htmlFor="confirmPassword" className="label">
                 Confirmer le mot de passe
               </label>
               <PasswordInput
@@ -110,13 +115,15 @@ function ResetPassword() {
               />
             </div>
 
-            <div className="d-grid">
+            <div>
               <button
                 type="submit"
-                className="btn btn-primary auth-submit-btn"
+                className="btn-ink w-full !py-4 text-base"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Enregistrement..." : "Réinitialiser le mot de passe"}
+                {isSubmitting
+                  ? "Enregistrement..."
+                  : "Réinitialiser le mot de passe"}
               </button>
             </div>
           </form>

@@ -32,32 +32,32 @@ function VerifyEmail() {
   }, [token, verifyEmail]);
 
   return (
-    <section className="auth-page">
+    <section className="mx-auto max-w-lg px-6 pt-16">
       <SeoHead
         title="Confirmation de l'adresse e-mail"
         description="Confirmation de l'adresse e-mail de ton compte Antunes."
         noIndex
       />
 
-      <div className="container auth-container">
-        <div className="auth-card mx-auto text-center verify-email-card">
-          <h1 className="auth-form-title">Confirmation de l&apos;adresse e-mail</h1>
+      <div>
+        <div className="card p-8 text-center md:p-10">
+          <h1 className="text-4xl">Confirmation de l&apos;adresse e-mail</h1>
 
           {status === "pending" ? (
-            <p className="text-muted mb-0" role="status">
+            <p className="mt-3 font-semibold text-ink-soft" role="status">
               Vérification en cours...
             </p>
           ) : null}
 
           {status === "success" ? (
             <>
-              <div className="alert alert-success" role="status">
-                Ton adresse e-mail est confirmée. Tu peux maintenant publier
-                des annonces.
+              <div className="alert-success my-4" role="status">
+                Ton adresse e-mail est confirmée. Tu peux maintenant publier des
+                annonces.
               </div>
               <Link
                 to={isAuthenticated ? "/sell" : "/login"}
-                className="btn btn-primary"
+                className="btn-pink mt-6"
               >
                 {isAuthenticated ? "Déposer une annonce" : "Se connecter"}
               </Link>
@@ -66,12 +66,15 @@ function VerifyEmail() {
 
           {status === "error" ? (
             <>
-              <div className="alert alert-danger" role="alert">
+              <div className="alert-error my-4" role="alert">
                 {errorMessage}
               </div>
-              <p className="text-muted mb-0">
+              <p className="mt-3 font-semibold text-ink-soft">
                 Tu peux demander un nouveau lien depuis{" "}
-                <Link to="/account">ton compte</Link>.
+                <Link to="/account" className="link">
+                  ton compte
+                </Link>
+                .
               </p>
             </>
           ) : null}

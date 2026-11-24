@@ -34,7 +34,9 @@ describe("Catalog", () => {
     await user.click(categoryButtons[0]);
 
     expect(await screen.findByText(/1 annonce\b/i)).toBeInTheDocument();
-    expect(screen.getByAltText("Console Sony PS5 Slim")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Console Sony PS5 Slim" }),
+    ).toBeInTheDocument();
   });
 
   it("prefills the category filter from the URL search params", async () => {
@@ -43,7 +45,9 @@ describe("Catalog", () => {
     });
 
     expect(await screen.findByText(/1 annonce\b/i)).toBeInTheDocument();
-    expect(screen.getByAltText("iPhone 15 Pro")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "iPhone 15 Pro" }),
+    ).toBeInTheDocument();
   });
 
   it("shows an empty state when no product matches", async () => {

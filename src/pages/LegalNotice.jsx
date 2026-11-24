@@ -6,18 +6,18 @@ import { HOSTS, PUBLISHER } from "../constants/legal";
 // (article 6 de la loi n° 2004-575 pour la confiance dans l'économie numérique).
 function LegalNotice() {
   return (
-    <div className="container legal-page my-4">
+    <div className="legal-page mx-auto max-w-4xl px-6 pt-10">
       <SeoHead
         title="Mentions légales"
         description="Mentions légales du site Antunes : éditeur, hébergeurs et propriété intellectuelle."
       />
 
-      <h1 className="h2 mb-4">Mentions légales</h1>
+      <h1 className="mb-6 text-5xl md:text-6xl">Mentions légales</h1>
 
       <h2>Éditeur du site</h2>
       <p>
-        Le site Antunes est édité par {PUBLISHER.name}, à titre personnel et
-        non commercial. {PUBLISHER.context}
+        Le site Antunes est édité par {PUBLISHER.name}, à titre personnel et non
+        commercial. {PUBLISHER.context}
       </p>
       <p>
         Contact :{" "}
@@ -47,20 +47,20 @@ function LegalNotice() {
 
       <h2>Nature du service</h2>
       <p>
-        Antunes est une démonstration de place de marché entre particuliers
-        pour l&apos;électronique d&apos;occasion. Les paiements sont réalisés
-        en mode test de Stripe : aucune transaction réelle n&apos;est
-        effectuée et aucun montant n&apos;est débité.
+        Antunes est une démonstration de place de marché entre particuliers pour
+        l&apos;électronique d&apos;occasion. Les paiements sont réalisés en mode
+        test de Stripe : aucune transaction réelle n&apos;est effectuée et aucun
+        montant n&apos;est débité.
       </p>
 
       <h2>Propriété intellectuelle</h2>
       <p>
         La structure du site, ses textes, son logo et son code source sont
         protégés par le droit d&apos;auteur. Toute reproduction ou
-        représentation, totale ou partielle, sans autorisation de
-        l&apos;éditeur est interdite (article L122-4 du Code de la propriété
-        intellectuelle). Les marques citées dans les annonces appartiennent à
-        leurs propriétaires respectifs.
+        représentation, totale ou partielle, sans autorisation de l&apos;éditeur
+        est interdite (article L122-4 du Code de la propriété intellectuelle).
+        Les marques citées dans les annonces appartiennent à leurs propriétaires
+        respectifs.
       </p>
 
       <h2>Données personnelles</h2>

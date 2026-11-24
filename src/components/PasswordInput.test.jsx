@@ -25,10 +25,7 @@ describe("PasswordInput", () => {
     });
     await user.click(toggleButton);
 
-    expect(document.getElementById("password")).toHaveAttribute(
-      "type",
-      "text",
-    );
+    expect(document.getElementById("password")).toHaveAttribute("type", "text");
     expect(
       screen.getByRole("button", { name: "Masquer le mot de passe" }),
     ).toBeInTheDocument();

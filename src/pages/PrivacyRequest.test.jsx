@@ -25,7 +25,11 @@ describe("PrivacyRequest", () => {
     }));
     globalThis.fetch = createApiMock([
       listProductsRoute,
-      { method: "POST", pattern: /^\/privacy-requests$/, handler: requestHandler },
+      {
+        method: "POST",
+        pattern: /^\/privacy-requests$/,
+        handler: requestHandler,
+      },
     ]);
     const user = userEvent.setup();
 
@@ -39,7 +43,9 @@ describe("PrivacyRequest", () => {
       screen.getByLabelText("Ta demande"),
       "Supprimer mes données",
     );
-    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
+    await user.click(
+      screen.getByRole("button", { name: "Envoyer ma demande" }),
+    );
 
     expect(
       await screen.findByText("Ta demande a bien été enregistrée."),
@@ -72,7 +78,9 @@ describe("PrivacyRequest", () => {
       screen.getByLabelText("Adresse e-mail concernée"),
       "client@example.com",
     );
-    await user.click(screen.getByRole("button", { name: "Envoyer ma demande" }));
+    await user.click(
+      screen.getByRole("button", { name: "Envoyer ma demande" }),
+    );
 
     expect(
       await screen.findByText("Trop de demandes, réessaie plus tard."),

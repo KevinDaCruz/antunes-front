@@ -52,11 +52,11 @@ function AddressAutocomplete({ id, initialValue = "", onSelect }) {
   }
 
   return (
-    <div className="address-autocomplete">
+    <div className="relative">
       <input
         id={id}
         type="text"
-        className="form-control"
+        className="field"
         role="combobox"
         aria-expanded={suggestions.length > 0}
         aria-controls="address-suggestions-list"
@@ -67,24 +67,24 @@ function AddressAutocomplete({ id, initialValue = "", onSelect }) {
       />
 
       {isLoading ? (
-        <div className="form-text">Recherche en cours…</div>
+        <p className="mt-1.5 text-xs font-semibold text-ink-muted">
+          Recherche en cours…
+        </p>
       ) : null}
 
-      {errorMessage ? (
-        <div className="form-text text-danger">{errorMessage}</div>
-      ) : null}
+      {errorMessage ? <p className="alert-error mt-2">{errorMessage}</p> : null}
 
       {suggestions.length > 0 ? (
         <ul
           id="address-suggestions-list"
           role="listbox"
-          className="address-suggestions-list"
+          className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-xl border-3 border-ink bg-white text-ink shadow-brutal"
         >
           {suggestions.map((suggestion) => (
             <li key={suggestion.id} role="option" aria-selected="false">
               <button
                 type="button"
-                className="address-suggestion-btn"
+                className="w-full border-b-2 border-ink/10 px-4 py-2.5 text-left text-sm font-semibold hover:bg-yellow focus-visible:bg-yellow"
                 onClick={() => handleSuggestionSelect(suggestion)}
               >
                 {suggestion.label}

@@ -35,7 +35,9 @@ const listProductsRoute = {
 
 async function renderProducts() {
   const view = renderHook(() => useProducts(), { wrapper });
-  await waitFor(() => expect(view.result.current.isLoadingProducts).toBe(false));
+  await waitFor(() =>
+    expect(view.result.current.isLoadingProducts).toBe(false),
+  );
   return view;
 }
 
@@ -63,7 +65,11 @@ describe("ProductsContext", () => {
   });
 
   it("adds a new product via the API and prepends it locally", async () => {
-    const newProduct = { ...DEMO_PRODUCTS[0], _id: "product-3", name: "Manette Xbox" };
+    const newProduct = {
+      ...DEMO_PRODUCTS[0],
+      _id: "product-3",
+      name: "Manette Xbox",
+    };
     globalThis.fetch = createApiMock([
       listProductsRoute,
       {
@@ -147,11 +153,15 @@ describe("ProductsContext", () => {
     await act(async () => {
       await result.current.toggleFavorite("product-1");
     });
-    await waitFor(() => expect(result.current.isFavorite("product-1")).toBe(true));
+    await waitFor(() =>
+      expect(result.current.isFavorite("product-1")).toBe(true),
+    );
 
     await act(async () => {
       await result.current.toggleFavorite("product-1");
     });
-    await waitFor(() => expect(result.current.isFavorite("product-1")).toBe(false));
+    await waitFor(() =>
+      expect(result.current.isFavorite("product-1")).toBe(false),
+    );
   });
 });

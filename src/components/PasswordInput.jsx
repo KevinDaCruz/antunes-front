@@ -1,25 +1,30 @@
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 function PasswordInput({ id, className = "", ...inputProps }) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div className="password-input-wrapper">
+    <div className="relative">
       <input
         {...inputProps}
         id={id}
         type={isVisible ? "text" : "password"}
-        className={`form-control password-input ${className}`}
+        className={`field !pr-12 ${className}`}
       />
       <button
         type="button"
-        className="password-toggle-btn"
+        className="absolute top-1/2 right-3 grid size-8 -translate-y-1/2 place-items-center rounded-md hover:bg-yellow"
         onClick={() => setIsVisible((current) => !current)}
         aria-label={
           isVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"
         }
       >
-        <span aria-hidden="true">{isVisible ? "🙈" : "👁️"}</span>
+        {isVisible ? (
+          <EyeOff className="size-5" aria-hidden="true" />
+        ) : (
+          <Eye className="size-5" aria-hidden="true" />
+        )}
       </button>
     </div>
   );

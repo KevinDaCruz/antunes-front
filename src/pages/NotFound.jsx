@@ -3,24 +3,26 @@ import SeoHead from "../components/SeoHead";
 
 function NotFound() {
   return (
-    <div className="container my-5 text-center">
+    <div className="mx-auto max-w-2xl px-6 py-20 text-center">
       <SeoHead
         title="Page introuvable"
         description="Cette page n'existe pas ou a été déplacée."
         noIndex
       />
 
-      <p className="display-4 fw-bold mb-2">404</p>
-      <h1 className="h2 mb-3">Page introuvable</h1>
-      <p className="text-muted mb-4">
+      <p className="text-[8rem] leading-none font-black tracking-tighter">
+        404
+      </p>
+      <h1 className="mb-4 text-4xl md:text-5xl">Page introuvable</h1>
+      <p className="mb-8 text-lg font-semibold text-ink-soft">
         Cette page n&apos;existe pas ou a été déplacée.
       </p>
 
-      <div className="d-flex justify-content-center gap-2">
-        <Link to="/" className="btn btn-outline-primary">
+      <div className="mt-2 flex flex-wrap justify-center gap-3">
+        <Link to="/" className="btn-white">
           Accueil
         </Link>
-        <Link to="/catalog" className="btn btn-primary fx-neon">
+        <Link to="/catalog" className="btn-pink">
           Voir le catalogue
         </Link>
       </div>

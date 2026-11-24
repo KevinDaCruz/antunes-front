@@ -1,3 +1,4 @@
+import { Mail } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -24,26 +25,35 @@ function EmailVerificationNotice({ reason }) {
   }
 
   return (
-    <div className="alert alert-warning email-verification-notice" role="status">
-      <p className="mb-2">
-        <strong>Confirme ton adresse e-mail.</strong> Un lien a été envoyé à{" "}
-        {user.email}. {reason}
-      </p>
+    <div
+      className="flex flex-wrap items-start gap-4 rounded-2xl border-3 border-ink bg-sky p-5 text-ink"
+      role="status"
+    >
+      <span className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-ink bg-white">
+        <Mail className="size-5" aria-hidden="true" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-black">Confirme ton adresse e-mail.</p>
+        <p className="text-sm font-semibold">
+          Un lien a été envoyé à {user.email}. {reason}
+        </p>
+        {feedback ? (
+          <p
+            className={`mt-2 text-sm font-extrabold ${feedback.type === "success" ? "" : "text-[#a3131b]"}`}
+          >
+            {feedback.text}
+          </p>
+        ) : null}
+      </div>
 
       <button
         type="button"
-        className="btn btn-sm btn-outline-dark"
+        className="btn-white !py-2 text-sm"
         onClick={handleResendClick}
         disabled={isSending}
       >
         {isSending ? "Envoi..." : "Renvoyer le lien"}
       </button>
-
-      {feedback ? (
-        <p className={`mt-2 mb-0 text-${feedback.type}-emphasis`}>
-          {feedback.text}
-        </p>
-      ) : null}
     </div>
   );
 }

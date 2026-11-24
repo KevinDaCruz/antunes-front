@@ -18,7 +18,8 @@ export const HOSTS = [
   {
     role: "Hébergement de l'API (back-end)",
     name: "Render Services, Inc.",
-    address: "525 Brannan Street, Suite 300, San Francisco, CA 94107, États-Unis",
+    address:
+      "525 Brannan Street, Suite 300, San Francisco, CA 94107, États-Unis",
     website: "https://render.com",
   },
   {

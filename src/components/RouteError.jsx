@@ -21,19 +21,19 @@ function RouteError() {
   }
 
   return (
-    <div className="container my-5 text-center" role="alert">
-      <h1 className="h2 mb-3">{title}</h1>
-      <p className="text-muted mb-4">{message}</p>
-      <div className="d-flex justify-content-center gap-2">
+    <div className="mx-auto max-w-2xl px-6 py-20 text-center" role="alert">
+      <h1 className="text-4xl md:text-5xl">{title}</h1>
+      <p className="mt-4 text-lg font-semibold text-ink-soft">{message}</p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn-pink"
           onClick={() => window.location.reload()}
         >
           Recharger la page
         </button>
         {/* Lien classique : recharge entièrement l'application. */}
-        <a href="/" className="btn btn-outline-primary">
+        <a href="/" className="btn-white">
           Retour à l'accueil
         </a>
       </div>

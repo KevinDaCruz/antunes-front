@@ -33,11 +33,12 @@ describe("ForgotPassword", () => {
     const user = userEvent.setup();
     renderWithProviders(<ForgotPassword />);
 
-    await user.type(screen.getByLabelText("Adresse e-mail"), "kevin@example.com");
+    await user.type(
+      screen.getByLabelText("Adresse e-mail"),
+      "kevin@example.com",
+    );
     await user.click(screen.getByRole("button", { name: "Envoyer le lien" }));
 
-    expect(
-      await screen.findByText(/Si un compte existe/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Si un compte existe/)).toBeInTheDocument();
   });
 });

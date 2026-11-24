@@ -21,7 +21,11 @@ describe("VerifyEmail", () => {
     }));
     globalThis.fetch = createApiMock([
       listProductsRoute,
-      { method: "POST", pattern: /^\/auth\/verify-email$/, handler: verifyHandler },
+      {
+        method: "POST",
+        pattern: /^\/auth\/verify-email$/,
+        handler: verifyHandler,
+      },
     ]);
 
     renderWithProviders(<VerifyEmail />, {
@@ -45,7 +49,9 @@ describe("VerifyEmail", () => {
         pattern: /^\/auth\/verify-email$/,
         handler: () => ({
           status: 400,
-          json: { error: { message: "Lien de confirmation invalide ou expiré." } },
+          json: {
+            error: { message: "Lien de confirmation invalide ou expiré." },
+          },
         }),
       },
     ]);
@@ -57,7 +63,9 @@ describe("VerifyEmail", () => {
     expect(
       await screen.findByText("Lien de confirmation invalide ou expiré."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "ton compte" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "ton compte" }),
+    ).toBeInTheDocument();
   });
 
   it("rejects a link without token without calling the API", () => {

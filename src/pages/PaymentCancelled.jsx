@@ -3,19 +3,19 @@ import SeoHead from "../components/SeoHead";
 
 function PaymentCancelled() {
   return (
-    <div className="container my-5 text-center">
+    <div className="mx-auto max-w-2xl px-6 py-20 text-center">
       <SeoHead
         title="Paiement annulé"
         description="Ton paiement a été annulé."
         noIndex
       />
 
-      <h1 className="h2 mb-3">Paiement annulé</h1>
-      <p className="text-muted mb-4">
+      <h1 className="mb-4 text-4xl md:text-5xl">Paiement annulé</h1>
+      <p className="mb-8 text-lg font-semibold text-ink-soft">
         Aucun montant n&apos;a été prélevé. Tu peux réessayer quand tu veux.
       </p>
 
-      <Link to="/catalog" className="btn btn-primary fx-neon">
+      <Link to="/catalog" className="btn-pink">
         Retour au catalogue
       </Link>
     </div>

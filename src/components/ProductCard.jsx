@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import { useAuth } from "../hooks/useAuth";
+import { Heart } from "lucide-react";
+import { formatPrice } from "../utils/formatPrice";
+import ConditionBadge from "./ConditionBadge";
+import ProductVisual from "./ProductVisual";
 
 function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useProducts();
@@ -45,45 +49,70 @@ function ProductCard({ product }) {
   }
 
   return (
-    <div className="col-12 col-md-6 col-lg-3 mb-4">
-      <div className="card h-100 shadow-sm border-0 product-card">
-        <button
-          type="button"
-          className={`favorite-toggle-btn ${
-            productIsFavorite ? "is-favorite" : ""
-          } ${isBursting ? "is-bursting" : ""}`}
-          aria-label={
-            productIsFavorite
-              ? "Retirer des favoris"
-              : "Ajouter l'article aux favoris"
-          }
-          aria-pressed={productIsFavorite}
-          onClick={handleFavoriteClick}
-        >
-          <span aria-hidden="true">♥</span>
-        </button>
+    <article className="group relative flex flex-col overflow-hidden rounded-(--radius-card) bg-white brutal press">
+      <ProductVisual
+        product={product}
+        className="aspect-[4/3.4] border-b-3 border-ink"
+        illustrationClassName="transition duration-300 group-hover:-rotate-3 group-hover:scale-105"
+      >
+        <div className="absolute bottom-3 left-3 flex gap-1.5">
+          <ConditionBadge condition={product.condition} />
+          {/* Un article vendu peut rester visible dans les favoris. */}
+          {product.status === "sold" ? (
+            <span className="rounded-full border-2 border-ink bg-ink px-2.5 py-0.5 text-xs font-extrabold text-cream">
+              Vendu
+            </span>
+          ) : null}
+        </div>
+      </ProductVisual>
 
-        <Link
-          to={`/product/${product._id}`}
-          className="text-decoration-none text-dark product-card-link"
-        >
-          <img
-            src={product.imageUrl}
-            className="card-img-top product-card-image"
-            alt={product.name}
-          />
-          <div className="card-body product-card-body">
-            {/* Un article vendu peut rester visible dans les favoris. */}
-            {product.status === "sold" ? (
-              <span className="badge text-bg-secondary mb-2">Vendu</span>
-            ) : null}
-            <p className="h5 card-title fw-bold">{product.price}€</p>
-            <p className="card-text text-muted mb-1">{product.brand}</p>
-            <p className="card-text text-secondary">{product.condition}</p>
-          </div>
-        </Link>
+      <button
+        type="button"
+        className={`absolute top-3 right-3 z-10 grid size-9 place-items-center rounded-full border-2 border-ink text-ink transition hover:bg-pink ${
+          productIsFavorite ? "bg-pink" : "bg-white"
+        } ${isBursting ? "scale-125" : ""}`}
+        aria-label={
+          productIsFavorite
+            ? "Retirer des favoris"
+            : "Ajouter l'article aux favoris"
+        }
+        aria-pressed={productIsFavorite}
+        onClick={handleFavoriteClick}
+      >
+        <Heart
+          className="size-4.5"
+          fill={productIsFavorite ? "currentColor" : "none"}
+          aria-hidden="true"
+        />
+      </button>
+
+      <div className="flex flex-1 flex-col gap-0.5 p-4">
+        <p className="text-xs font-bold text-ink-muted">
+          {product.brand} · {product.category}
+        </p>
+        <h3 className="font-sans text-base leading-snug font-extrabold">
+          {/* Le lien couvre toute la carte (pseudo-élément), le bouton
+              favori reste cliquable au-dessus. */}
+          <Link
+            to={`/product/${product._id}`}
+            className="after:absolute after:inset-0"
+          >
+            {product.name}
+          </Link>
+        </h3>
+        <div className="mt-auto flex flex-col gap-0.5 pt-3 sm:flex-row sm:items-end sm:justify-between sm:gap-2">
+          <p className="text-2xl font-black tracking-tight">
+            {formatPrice(product.price)}
+          </p>
+          {product.serviceFee !== undefined ? (
+            <p className="text-[11px] leading-tight font-semibold text-ink-muted sm:text-right">
+              {formatPrice(product.price + product.serviceFee)}
+              <br className="hidden sm:block" /> protection incluse
+            </p>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 

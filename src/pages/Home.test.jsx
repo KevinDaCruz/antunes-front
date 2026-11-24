@@ -20,10 +20,10 @@ describe("Home", () => {
     renderWithProviders(<Home />);
 
     expect(
-      screen.getByRole("heading", { name: /vente tech nouvelle génération/i }),
+      screen.getByRole("heading", { name: /La tech a\s+plusieurs\s+vies/i }),
     ).toBeInTheDocument();
     expect(
-      (await screen.findAllByAltText("iPhone 15 Pro")).length,
-    ).toBeGreaterThan(0);
+      await screen.findByRole("link", { name: "iPhone 15 Pro" }),
+    ).toBeInTheDocument();
   });
 });

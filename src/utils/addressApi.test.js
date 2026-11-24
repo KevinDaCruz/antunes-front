@@ -27,9 +27,7 @@ describe("searchAddress", () => {
     const results = await searchAddress("1 rue de Paris");
 
     expect(globalThis.fetch).toHaveBeenCalledOnce();
-    expect(results).toEqual([
-      { id: "1", label: "1 Rue de Paris 75001 Paris" },
-    ]);
+    expect(results).toEqual([{ id: "1", label: "1 Rue de Paris 75001 Paris" }]);
   });
 
   it("throws when the API responds with an error status", async () => {

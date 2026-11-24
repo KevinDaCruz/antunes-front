@@ -49,12 +49,12 @@ describe("Messages", () => {
 
     expect(
       await screen.findByText("Console Sony PS5 Slim", {
-        selector: ".messages-thread-header p",
+        selector: "section[aria-label=Conversation] header p",
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Salut, elle est toujours disponible ?", {
-        selector: ".message-bubble p",
+        selector: "[role=log] p",
       }),
     ).toBeInTheDocument();
   });
@@ -63,14 +63,14 @@ describe("Messages", () => {
     const user = userEvent.setup();
     renderWithProviders(<Messages />);
     await screen.findByText("Console Sony PS5 Slim", {
-      selector: ".messages-thread-header p",
+      selector: "section[aria-label=Conversation] header p",
     });
 
     await user.click(screen.getByRole("button", { name: /PixelStore/ }));
 
     expect(
       screen.getByText("Je peux l'envoyer demain matin.", {
-        selector: ".message-bubble p",
+        selector: "[role=log] p",
       }),
     ).toBeInTheDocument();
   });
@@ -105,7 +105,7 @@ describe("Messages", () => {
     const user = userEvent.setup();
     renderWithProviders(<Messages />);
     await screen.findByText("Console Sony PS5 Slim", {
-      selector: ".messages-thread-header p",
+      selector: "section[aria-label=Conversation] header p",
     });
 
     await user.type(
@@ -116,11 +116,9 @@ describe("Messages", () => {
 
     expect(
       await screen.findByText("C'est encore dispo ?", {
-        selector: ".message-bubble p",
+        selector: "[role=log] p",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Écrire un message...")).toHaveValue(
-      "",
-    );
+    expect(screen.getByPlaceholderText("Écrire un message...")).toHaveValue("");
   });
 });
