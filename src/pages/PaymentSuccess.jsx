@@ -68,8 +68,8 @@ function PaymentSuccess() {
         <p className="mb-8 text-lg font-semibold text-ink-soft">
           Ton achat de <strong>{order.product?.name}</strong> pour{" "}
           <strong>{formatPrice(order.amountTotal)}</strong>, frais de protection
-          compris, a bien été enregistré. Le vendeur est prévenu et
-          l&apos;annonce passe en « Vendu ».
+          compris, a bien été enregistré. L&apos;annonce passe en « Vendu » et
+          la vente apparaît dans l&apos;espace du vendeur.
         </p>
       ) : (
         <p className="mb-8 text-lg font-semibold text-ink-soft">
