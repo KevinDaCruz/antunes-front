@@ -58,8 +58,12 @@ export function AuthProvider({ children }) {
           token: storedSession.token,
         });
         setSession({ token: storedSession.token, user: data.user });
-      } catch {
-        setSession(null);
+      } catch (error) {
+        // Seul un jeton refusé (401) met fin à la session. Une API en veille
+        // ou momentanément indisponible ne doit pas déconnecter l'utilisateur.
+        if (error.status === 401) {
+          setSession(null);
+        }
       } finally {
         setIsLoading(false);
       }

@@ -1,14 +1,13 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+// Protège les pages réservées aux membres : un visiteur est renvoyé vers la
+// connexion, puis ramené sur la page demandée une fois connecté.
 function RequireAuth() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // En dev (npm run dev), on laisse les pages protégées accessibles pour
-  // ne pas ralentir les tests. La protection reste active en production
-  // (npm run build / npm run preview).
-  if (import.meta.env.DEV || isAuthenticated) {
+  if (isAuthenticated) {
     return <Outlet />;
   }
 

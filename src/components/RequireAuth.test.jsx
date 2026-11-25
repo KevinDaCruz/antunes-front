@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
@@ -27,22 +27,10 @@ function renderProtectedRouter(initialPath = "/protected") {
 
 describe("RequireAuth", () => {
   afterEach(() => {
-    vi.unstubAllEnvs();
     window.localStorage.clear();
   });
 
-  it("lets anyone through in dev mode, even when logged out", () => {
-    vi.stubEnv("DEV", true);
-    window.localStorage.clear();
-    globalThis.fetch = createApiMock([]);
-
-    renderProtectedRouter();
-
-    expect(screen.getByText("Contenu protégé")).toBeInTheDocument();
-  });
-
-  it("redirects to /login outside dev mode when logged out", () => {
-    vi.stubEnv("DEV", false);
+  it("redirects a logged-out visitor to /login", () => {
     window.localStorage.clear();
     globalThis.fetch = createApiMock([]);
 
@@ -51,8 +39,7 @@ describe("RequireAuth", () => {
     expect(screen.getByText("Page de connexion")).toBeInTheDocument();
   });
 
-  it("lets an authenticated user through outside dev mode", async () => {
-    vi.stubEnv("DEV", false);
+  it("lets an authenticated user through", async () => {
     window.localStorage.setItem(
       "antunes-auth",
       JSON.stringify({ token: FAKE_TOKEN, user: DEMO_USER }),

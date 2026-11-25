@@ -28,6 +28,49 @@ describe("AuthContext", () => {
     expect(result.current.user).toBeNull();
   });
 
+  it("ends a stored session when the API rejects the token", async () => {
+    window.localStorage.setItem(
+      "antunes-auth",
+      JSON.stringify({ token: FAKE_TOKEN, user: DEMO_USER }),
+    );
+    globalThis.fetch = createApiMock([
+      {
+        method: "GET",
+        pattern: /^\/auth\/me$/,
+        handler: () => ({
+          status: 401,
+          json: { error: { message: "Token invalide ou expiré." } },
+        }),
+      },
+    ]);
+
+    const { result } = await renderAuth();
+
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it("keeps a stored session when the API is temporarily unavailable", async () => {
+    window.localStorage.setItem(
+      "antunes-auth",
+      JSON.stringify({ token: FAKE_TOKEN, user: DEMO_USER }),
+    );
+    globalThis.fetch = createApiMock([
+      {
+        method: "GET",
+        pattern: /^\/auth\/me$/,
+        handler: () => ({
+          status: 429,
+          json: { error: { message: "Trop de requêtes." } },
+        }),
+      },
+    ]);
+
+    const { result } = await renderAuth();
+
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user.pseudo).toBe(DEMO_USER.pseudo);
+  });
+
   it("rejects login when the backend refuses the credentials", async () => {
     globalThis.fetch = createApiMock([
       {
