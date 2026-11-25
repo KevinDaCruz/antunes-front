@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useProducts } from "../hooks/useProducts";
 import { apiRequest, ApiError } from "../utils/apiClient";
 import { formatPrice } from "../utils/formatPrice";
 import { buildProductStructuredData } from "../utils/structuredData";
@@ -8,13 +9,20 @@ import SeoHead from "../components/SeoHead";
 import PageLoader from "../components/PageLoader";
 import ProductVisual from "../components/ProductVisual";
 import ConditionBadge from "../components/ConditionBadge";
-import { BadgeEuro, LockKeyhole, MessageCircle } from "lucide-react";
+import {
+  BadgeEuro,
+  Heart,
+  LockKeyhole,
+  MessageCircle,
+  Pencil,
+} from "lucide-react";
 
 const DEFAULT_MESSAGE = "Bonjour, cet article est-il toujours disponible ?";
 
 function ProductDetails() {
   const { id } = useParams();
   const { isAuthenticated, token, user } = useAuth();
+  const { isFavorite, toggleFavorite } = useProducts();
   const navigate = useNavigate();
   const location = useLocation();
   const [contactError, setContactError] = useState("");
@@ -79,6 +87,9 @@ function ProductDetails() {
   }
 
   const isSold = product.status === "sold";
+  const isWithdrawn = product.status === "withdrawn";
+  const isUnavailable = isSold || isWithdrawn;
+  const productIsFavorite = isFavorite(product._id);
   const isOwnProduct = Boolean(user) && product.seller?._id === user.id;
 
   async function handleBuyNow() {
@@ -106,6 +117,15 @@ function ProductDetails() {
       );
       setIsRedirectingToPayment(false);
     }
+  }
+
+  function handleToggleFavorite() {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
+    toggleFavorite(product._id);
   }
 
   async function handleContactSeller() {
@@ -223,6 +243,11 @@ function ProductDetails() {
                   Vendu
                 </span>
               ) : null}
+              {isWithdrawn ? (
+                <span className="rounded-full border-2 border-ink bg-white px-2.5 py-0.5 text-xs font-extrabold text-ink">
+                  Retirée
+                </span>
+              ) : null}
             </div>
             <p className="mt-5 text-sm font-bold text-ink-muted">
               {product.brand} · {product.category}
@@ -265,17 +290,30 @@ function ProductDetails() {
                   Cet article a déjà trouvé preneur.
                 </div>
               ) : null}
+              {isWithdrawn ? (
+                <div className="alert-info" role="status">
+                  Cette annonce a été retirée de la vente par son vendeur.
+                </div>
+              ) : null}
             </div>
 
             {isOwnProduct ? (
-              <p className="alert-info mt-5">C&apos;est ton annonce.</p>
+              <div className="mt-5 space-y-3">
+                <p className="alert-info">C&apos;est ton annonce.</p>
+                {!isUnavailable ? (
+                  <Link to={`/sell/${product._id}`} className="btn-white">
+                    <Pencil className="size-4" aria-hidden="true" />
+                    Modifier l&apos;annonce
+                  </Link>
+                ) : null}
+              </div>
             ) : (
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   className="btn-pink !py-4 text-base"
                   onClick={handleBuyNow}
-                  disabled={isRedirectingToPayment || isSold}
+                  disabled={isRedirectingToPayment || isUnavailable}
                 >
                   {isRedirectingToPayment
                     ? "Redirection vers le paiement..."
@@ -285,11 +323,28 @@ function ProductDetails() {
                   type="button"
                   className="btn-white !py-4 text-base"
                   onClick={handleContactSeller}
-                  disabled={isSold}
+                  disabled={isUnavailable}
                 >
                   <MessageCircle className="size-5" aria-hidden="true" />
                   Contacter le vendeur
                 </button>
+                {isWithdrawn ? null : (
+                  <button
+                    type="button"
+                    className={`${productIsFavorite ? "btn-pink" : "btn-white"} sm:col-span-2`}
+                    onClick={handleToggleFavorite}
+                    aria-pressed={productIsFavorite}
+                  >
+                    <Heart
+                      className="size-5"
+                      fill={productIsFavorite ? "currentColor" : "none"}
+                      aria-hidden="true"
+                    />
+                    {productIsFavorite
+                      ? "Retirer des favoris"
+                      : "Ajouter aux favoris"}
+                  </button>
+                )}
               </div>
             )}
 

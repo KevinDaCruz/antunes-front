@@ -22,9 +22,10 @@ export function buildProductStructuredData(product, url) {
       itemCondition:
         CONDITIONS[product.condition] ?? "https://schema.org/UsedCondition",
       availability:
-        product.status === "sold"
-          ? "https://schema.org/SoldOut"
-          : "https://schema.org/InStock",
+        {
+          sold: "https://schema.org/SoldOut",
+          withdrawn: "https://schema.org/Discontinued",
+        }[product.status] ?? "https://schema.org/InStock",
     },
   };
 }

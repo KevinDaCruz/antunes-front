@@ -58,6 +58,32 @@ export function ProductsProvider({ children }) {
     return data.product;
   }
 
+  async function updateProduct(productId, changes) {
+    const data = await apiRequest(`/products/${productId}`, {
+      method: "PATCH",
+      body: changes,
+      token,
+    });
+
+    setProducts((currentProducts) =>
+      currentProducts.map((product) =>
+        product._id === productId ? data.product : product,
+      ),
+    );
+
+    return data.product;
+  }
+
+  // Retire l'annonce de la vente : elle disparaît du catalogue et des favoris.
+  async function withdrawProduct(productId) {
+    await apiRequest(`/products/${productId}`, { method: "DELETE", token });
+
+    setProducts((currentProducts) =>
+      currentProducts.filter((product) => product._id !== productId),
+    );
+    await loadFavorites();
+  }
+
   function isFavorite(productId) {
     return favoriteProducts.some((product) => product._id === productId);
   }
@@ -88,6 +114,8 @@ export function ProductsProvider({ children }) {
     isLoadingProducts,
     productsError,
     addProduct,
+    updateProduct,
+    withdrawProduct,
     favoriteProducts,
     toggleFavorite,
     isFavorite,

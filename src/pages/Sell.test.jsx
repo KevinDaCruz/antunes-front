@@ -31,13 +31,14 @@ function seedSession(user) {
   );
 }
 
-function renderSellRouter() {
+function renderSellRouter(initialPath = "/sell") {
   const router = createMemoryRouter(
     [
       { path: "/sell", element: <Sell /> },
+      { path: "/sell/:id", element: <Sell /> },
       { path: "/product/:id", element: <div>Fiche produit</div> },
     ],
-    { initialEntries: ["/sell"] },
+    { initialEntries: [initialPath] },
   );
 
   return render(
@@ -112,5 +113,77 @@ describe("Sell", () => {
     await user.click(screen.getByRole("button", { name: "Publier l'annonce" }));
 
     expect(await screen.findByText("Fiche produit")).toBeInTheDocument();
+  });
+
+  describe("editing an existing listing", () => {
+    const existingProduct = {
+      _id: "product-9",
+      name: "Manette Xbox",
+      brand: "Microsoft",
+      category: "Manettes",
+      condition: "Bon état",
+      price: 40,
+      description: "Avec câble.",
+      status: "available",
+      seller: { _id: DEMO_USER.id, pseudo: DEMO_USER.pseudo },
+    };
+
+    function productRoute(product) {
+      return {
+        method: "GET",
+        pattern: /^\/products\/product-9$/,
+        handler: () => ({ status: 200, json: { product } }),
+      };
+    }
+
+    it("prefills the form and saves the changes", async () => {
+      globalThis.fetch = createApiMock([
+        listProductsRoute,
+        meRouteFor(DEMO_USER),
+        productRoute(existingProduct),
+        {
+          method: "PATCH",
+          pattern: /^\/products\/product-9$/,
+          handler: ({ body }) => ({
+            status: 200,
+            json: { product: { ...existingProduct, ...body } },
+          }),
+        },
+      ]);
+      const user = userEvent.setup();
+      renderSellRouter("/sell/product-9");
+
+      const priceField = await screen.findByLabelText("Prix");
+      expect(screen.getByLabelText("Nom du produit")).toHaveValue(
+        "Manette Xbox",
+      );
+      await user.clear(priceField);
+      await user.type(priceField, "35");
+      await user.click(
+        screen.getByRole("button", { name: "Enregistrer les modifications" }),
+      );
+
+      expect(await screen.findByText("Fiche produit")).toBeInTheDocument();
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        expect.stringMatching(/\/products\/product-9$/),
+        expect.objectContaining({ method: "PATCH" }),
+      );
+    });
+
+    it("refuses to edit another member's listing", async () => {
+      globalThis.fetch = createApiMock([
+        listProductsRoute,
+        meRouteFor(DEMO_USER),
+        productRoute({ ...existingProduct, seller: { _id: "someone-else" } }),
+      ]);
+      renderSellRouter("/sell/product-9");
+
+      expect(
+        await screen.findByText(
+          "Tu ne peux modifier que tes propres annonces.",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText("Prix")).not.toBeInTheDocument();
+    });
   });
 });

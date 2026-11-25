@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import { useAuth } from "../hooks/useAuth";
 import { HEADER_CATEGORIES } from "../constants/navigation";
-import { ApiError } from "../utils/apiClient";
+import { apiRequest, ApiError } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import EmailVerificationNotice from "../components/EmailVerificationNotice";
 import ProductVisual from "../components/ProductVisual";
 import ConditionBadge from "../components/ConditionBadge";
+import PageLoader from "../components/PageLoader";
 import { formatPrice } from "../utils/formatPrice";
 import { computeBuyerTotal } from "../utils/serviceFee";
 
@@ -22,15 +23,77 @@ const INITIAL_FORM_STATE = {
   description: "",
 };
 
+// Le même formulaire sert à déposer une annonce (/sell) et à modifier une
+// annonce existante (/sell/:id), prérempli avec ses valeurs actuelles.
 function Sell() {
-  const { addProduct } = useProducts();
+  const { id: editedProductId } = useParams();
+  const isEditing = Boolean(editedProductId);
+  const { addProduct, updateProduct } = useProducts();
   const { user } = useAuth();
-  const canPublish = Boolean(user?.emailVerified);
+  const canPublish = isEditing || Boolean(user?.emailVerified);
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState(INITIAL_FORM_STATE);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [isLoadingProduct, setIsLoadingProduct] = useState(isEditing);
+
+  useEffect(() => {
+    if (!isEditing) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+
+    async function loadEditedProduct() {
+      try {
+        const { product } = await apiRequest(`/products/${editedProductId}`);
+
+        if (isCancelled) {
+          return;
+        }
+
+        if (product.seller?._id !== user?.id) {
+          setLoadError("Tu ne peux modifier que tes propres annonces.");
+        } else if (
+          product.status === "sold" ||
+          product.status === "withdrawn"
+        ) {
+          setLoadError(
+            "Cette annonce n'est plus en vente : elle ne peut plus être modifiée.",
+          );
+        } else {
+          setFormValues({
+            name: product.name,
+            brand: product.brand,
+            category: product.category,
+            condition: product.condition,
+            price: String(product.price),
+            description: product.description ?? "",
+          });
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setLoadError(
+            error instanceof ApiError
+              ? error.message
+              : "Impossible de charger l'annonce pour le moment.",
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingProduct(false);
+        }
+      }
+    }
+
+    loadEditedProduct();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [editedProductId, isEditing, user?.id]);
 
   function handleFieldChange(field, value) {
     setFormValues((currentValues) => ({ ...currentValues, [field]: value }));
@@ -49,24 +112,30 @@ function Sell() {
     setErrorMessage("");
     setIsSubmitting(true);
 
+    const productData = {
+      name,
+      brand,
+      category,
+      condition,
+      price: Number(price),
+      description,
+      imageUrl: `https://placehold.co/600x600.png?text=${encodeURIComponent(name)}`,
+    };
+
     try {
-      const newProduct = await addProduct({
-        name,
-        brand,
-        category,
-        condition,
-        price: Number(price),
-        description,
-        imageUrl: `https://placehold.co/600x600.png?text=${encodeURIComponent(name)}`,
-      });
+      const savedProduct = isEditing
+        ? await updateProduct(editedProductId, productData)
+        : await addProduct(productData);
 
       setFormValues(INITIAL_FORM_STATE);
-      navigate(`/product/${newProduct._id}`);
+      navigate(`/product/${savedProduct._id}`);
     } catch (error) {
       setErrorMessage(
         error instanceof ApiError
           ? error.message
-          : "Impossible de publier l'annonce pour le moment.",
+          : isEditing
+            ? "Impossible d'enregistrer les modifications pour le moment."
+            : "Impossible de publier l'annonce pour le moment.",
       );
     } finally {
       setIsSubmitting(false);
@@ -82,19 +151,56 @@ function Sell() {
     price: price > 0 ? price : 0,
   };
 
+  if (isLoadingProduct) {
+    return <PageLoader />;
+  }
+
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 pt-16">
+        <SeoHead
+          title="Modifier une annonce"
+          description="Modification d'une annonce Antunes."
+          noIndex
+        />
+        <h1 className="text-4xl">Modifier une annonce</h1>
+        <div className="alert-error mt-6" role="alert">
+          {loadError}
+        </div>
+        <Link to="/account" className="btn-white mt-6">
+          Retour à mon compte
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-6 pt-10">
-      <SeoHead
-        title="Vendre un article"
-        description="Publie gratuitement une annonce sur Antunes et vends ta tech d'occasion (smartphones, PC, consoles, composants) en quelques minutes."
-      />
+      {isEditing ? (
+        <SeoHead
+          title="Modifier une annonce"
+          description="Modification d'une annonce Antunes."
+          noIndex
+        />
+      ) : (
+        <SeoHead
+          title="Vendre un article"
+          description="Publie gratuitement une annonce sur Antunes et vends ta tech d'occasion (smartphones, PC, consoles, composants) en quelques minutes."
+        />
+      )}
 
-      <p className="eyebrow">Gratuit · 2 minutes</p>
-      <h1 className="mt-4 text-5xl md:text-6xl">Déposer une annonce</h1>
+      <p className="eyebrow">
+        {isEditing ? "Ton annonce" : "Gratuit · 2 minutes"}
+      </p>
+      <h1 className="mt-4 text-5xl md:text-6xl">
+        {isEditing ? "Modifier l'annonce" : "Déposer une annonce"}
+      </h1>
 
-      <div className="mt-8">
-        <EmailVerificationNotice reason="Cette étape est nécessaire pour publier une annonce." />
-      </div>
+      {isEditing ? null : (
+        <div className="mt-8">
+          <EmailVerificationNotice reason="Cette étape est nécessaire pour publier une annonce." />
+        </div>
+      )}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <form className="card space-y-6 p-8" onSubmit={handleSubmit}>
@@ -150,7 +256,9 @@ function Sell() {
                   className="field !pr-10"
                   id="productPrice"
                   placeholder="150"
-                  min="0"
+                  min="1"
+                  max="20000"
+                  step="0.01"
                   value={formValues.price}
                   onChange={(event) =>
                     handleFieldChange("price", event.target.value)
@@ -237,7 +345,13 @@ function Sell() {
               className="btn-pink !px-8 !py-4 text-base"
               disabled={isSubmitting || !canPublish}
             >
-              {isSubmitting ? "Publication..." : "Publier l'annonce"}
+              {isEditing
+                ? isSubmitting
+                  ? "Enregistrement..."
+                  : "Enregistrer les modifications"
+                : isSubmitting
+                  ? "Publication..."
+                  : "Publier l'annonce"}
             </button>
           </div>
         </form>

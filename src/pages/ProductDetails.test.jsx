@@ -15,6 +15,11 @@ import { DEMO_PRODUCTS, DEMO_USER, FAKE_TOKEN } from "../test/fixtures";
 const PRODUCTS_BY_ID = {
   ...Object.fromEntries(DEMO_PRODUCTS.map((product) => [product._id, product])),
   "sold-product": { ...DEMO_PRODUCTS[2], _id: "sold-product", status: "sold" },
+  "withdrawn-product": {
+    ...DEMO_PRODUCTS[2],
+    _id: "withdrawn-product",
+    status: "withdrawn",
+  },
   "my-product": {
     ...DEMO_PRODUCTS[1],
     _id: "my-product",
@@ -201,6 +206,62 @@ describe("ProductDetails", () => {
     expect(
       screen.queryByRole("button", { name: "Acheter maintenant" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("lets a logged-in member add the product to their favorites", async () => {
+    seedAuthenticatedSession();
+    const favorites = [];
+    globalThis.fetch = createApiMock([
+      ...productRoutes,
+      meRoute,
+      {
+        method: "GET",
+        pattern: /^\/favorites$/,
+        handler: () => ({ status: 200, json: { products: [...favorites] } }),
+      },
+      {
+        method: "POST",
+        pattern: /^\/favorites\/(?<id>[^/]+)$/,
+        handler: ({ params }) => {
+          favorites.push(PRODUCTS_BY_ID[params.id]);
+          return { status: 204 };
+        },
+      },
+    ]);
+    const user = userEvent.setup();
+    renderProductDetails(DEMO_PRODUCTS[0]._id);
+
+    await user.click(
+      await screen.findByRole("button", { name: "Ajouter aux favoris" }),
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "Retirer des favoris" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("offers the seller a link to edit their listing", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([...productRoutes, meRoute]);
+    renderProductDetails("my-product");
+
+    expect(
+      await screen.findByRole("link", { name: "Modifier l'annonce" }),
+    ).toHaveAttribute("href", "/sell/my-product");
+  });
+
+  it("explains that a withdrawn listing can no longer be bought", async () => {
+    globalThis.fetch = createApiMock(productRoutes);
+    renderProductDetails("withdrawn-product");
+
+    expect(
+      await screen.findByText(
+        "Cette annonce a été retirée de la vente par son vendeur.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Acheter maintenant" }),
+    ).toBeDisabled();
   });
 
   describe("buying while logged in", () => {

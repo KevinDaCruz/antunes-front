@@ -394,4 +394,53 @@ describe("Account", () => {
     );
     expect(window.localStorage.getItem("antunes-auth")).toBeNull();
   });
+
+  it("withdraws a listing after a confirmation", async () => {
+    seedAuthenticatedSession();
+    globalThis.fetch = createApiMock([
+      listProductsRoute,
+      meRoute,
+      favoritesRoute,
+      ordersRoute,
+      {
+        method: "GET",
+        pattern: /^\/products\/mine$/,
+        handler: () => ({
+          status: 200,
+          json: {
+            products: [
+              {
+                _id: "p2",
+                name: "Raspberry Pi 4",
+                condition: "Neuf",
+                price: 65,
+                status: "available",
+              },
+            ],
+          },
+        }),
+      },
+      {
+        method: "DELETE",
+        pattern: /^\/products\/p2$/,
+        handler: () => ({ status: 204 }),
+      },
+    ]);
+    const user = userEvent.setup();
+    renderWithProviders(<Account />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Retirer l'annonce Raspberry Pi 4",
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Confirmer le retrait" }),
+    );
+
+    expect(await screen.findByText("Retirée")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Modifier l'annonce Raspberry Pi 4" }),
+    ).not.toBeInTheDocument();
+  });
 });

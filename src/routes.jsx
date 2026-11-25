@@ -92,6 +92,12 @@ export const routes = [
                 element: withSuspense(<Sell />),
               },
               {
+                path: "/sell/:id",
+                // Clé distincte : passer de la modification au dépôt d'une
+                // nouvelle annonce doit repartir d'un formulaire vide.
+                element: withSuspense(<Sell key="edit" />),
+              },
+              {
                 path: "/favorites",
                 element: withSuspense(<Favorites />),
               },

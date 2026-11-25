@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useProducts } from "../hooks/useProducts";
-import { apiRequest } from "../utils/apiClient";
+import { apiRequest, ApiError } from "../utils/apiClient";
 import SeoHead from "../components/SeoHead";
 import AddressAutocomplete from "../components/AddressAutocomplete";
 import PasswordInput from "../components/PasswordInput";
@@ -29,7 +29,7 @@ const INITIAL_PASSWORD_FORM = {
 
 function Account() {
   const { user, token, logout, updateProfile, changePassword } = useAuth();
-  const { favoriteProducts } = useProducts();
+  const { favoriteProducts, withdrawProduct } = useProducts();
   const navigate = useNavigate();
   const [addressError, setAddressError] = useState("");
 
@@ -67,8 +67,38 @@ function Account() {
 
   const [myListings, setMyListings] = useState([]);
   const activeListingsCount = myListings.filter(
-    (product) => product.status !== "sold",
+    (product) => product.status !== "sold" && product.status !== "withdrawn",
   ).length;
+  // Retrait en deux temps : un premier clic demande confirmation, pour éviter
+  // de retirer une annonce par erreur.
+  const [listingToWithdraw, setListingToWithdraw] = useState(null);
+  const [withdrawError, setWithdrawError] = useState("");
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+
+  async function handleConfirmWithdraw(productId) {
+    setWithdrawError("");
+    setIsWithdrawing(true);
+
+    try {
+      await withdrawProduct(productId);
+      setMyListings((listings) =>
+        listings.map((listing) =>
+          listing._id === productId
+            ? { ...listing, status: "withdrawn" }
+            : listing,
+        ),
+      );
+      setListingToWithdraw(null);
+    } catch (error) {
+      setWithdrawError(
+        error instanceof ApiError
+          ? error.message
+          : "Impossible de retirer l'annonce pour le moment.",
+      );
+    } finally {
+      setIsWithdrawing(false);
+    }
+  }
 
   useEffect(() => {
     async function loadMyListings() {
@@ -262,13 +292,21 @@ function Account() {
               </p>
             ) : (
               <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[520px] text-left text-[15px]">
+                {withdrawError ? (
+                  <div className="alert-error mb-4" role="alert">
+                    {withdrawError}
+                  </div>
+                ) : null}
+                <table className="w-full min-w-[640px] text-left text-[15px]">
                   <thead>
                     <tr className="border-b-3 border-ink text-xs tracking-wide uppercase">
                       <th className="py-2">Produit</th>
                       <th>État</th>
                       <th>Prix</th>
                       <th>Statut</th>
+                      <th>
+                        <span className="sr-only">Actions</span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -296,9 +334,61 @@ function Account() {
                             <span className="rounded-full border-2 border-ink bg-ink px-2.5 py-0.5 text-xs font-extrabold text-cream">
                               Vendu
                             </span>
+                          ) : product.status === "withdrawn" ? (
+                            <span className="rounded-full border-2 border-ink bg-white px-2.5 py-0.5 text-xs font-extrabold text-ink">
+                              Retirée
+                            </span>
                           ) : (
                             <span className="rounded-full border-2 border-ink bg-mint px-2.5 py-0.5 text-xs font-extrabold text-ink">
                               En ligne
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 text-right">
+                          {product.status === "sold" ||
+                          product.status ===
+                            "withdrawn" ? null : listingToWithdraw ===
+                            product._id ? (
+                            <span className="inline-flex flex-wrap justify-end gap-2">
+                              <button
+                                type="button"
+                                className="btn-pink !px-3 !py-1.5 text-sm"
+                                onClick={() =>
+                                  handleConfirmWithdraw(product._id)
+                                }
+                                disabled={isWithdrawing}
+                              >
+                                {isWithdrawing
+                                  ? "Retrait..."
+                                  : "Confirmer le retrait"}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-white !px-3 !py-1.5 text-sm"
+                                onClick={() => setListingToWithdraw(null)}
+                              >
+                                Annuler
+                              </button>
+                            </span>
+                          ) : (
+                            <span className="inline-flex flex-wrap justify-end gap-2">
+                              <Link
+                                to={`/sell/${product._id}`}
+                                className="btn-white !px-3 !py-1.5 text-sm"
+                                aria-label={`Modifier l'annonce ${product.name}`}
+                              >
+                                Modifier
+                              </Link>
+                              <button
+                                type="button"
+                                className="btn-white !px-3 !py-1.5 text-sm"
+                                onClick={() =>
+                                  setListingToWithdraw(product._id)
+                                }
+                                aria-label={`Retirer l'annonce ${product.name}`}
+                              >
+                                Retirer
+                              </button>
                             </span>
                           )}
                         </td>
